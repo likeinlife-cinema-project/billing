@@ -1,4 +1,4 @@
-@startuml graduate_work
+@startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 !define SPRITES https://raw.githubusercontent.com/rabelenda/cicon-plantuml-sprites/v1.0/sprites
 !include SPRITES/postgresql.puml
@@ -14,21 +14,16 @@ System(bank_api, "Bank API")
 
 System_Boundary(billing_system, "Billing") {
     Container(admin_panel, "Admin Panel")
-    Container(billing_api, "Billing API")
-    Container(billing_worker, "Worker")
+    Container(billing_api, "Billing Service")
     ContainerDb(billing_db, "Billing DB", "PostgreSQL", $sprite="postgresql")
-    ContainerDb(billing_queue, "Task queue", "RabbitMQ", $sprite="rabbitmq")
 }
 
 Rel(customer, billing_api, " ")
 Rel(admin, admin_panel, " ")
 Rel(admin_panel, billing_db, " ")
 
-Rel(billing_api, billing_queue, " ")
-Rel(billing_queue, billing_worker, " ")
-
-Rel(billing_worker, billing_db, " ")
-Rel(billing_worker, bank_api, " ")
+Rel(billing_api, billing_db, " ")
+Rel(billing_api, bank_api, " ")
 
 
 @enduml

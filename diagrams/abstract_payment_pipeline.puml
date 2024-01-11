@@ -1,0 +1,35 @@
+@startuml
+autonumber
+
+actor client as "Клиент"
+box "App" #LightGray
+    participant front as "Фронтенд" #LightGreen
+    participant back as "Бэкенд" #LightBlue
+end box
+
+database db as "Заказы"
+
+participant bank_api as "Банк АПИ" #Yellow
+participant bank_payment_page as "Страница банка для оплаты" #SkyBlue
+
+client -> front: Жмет на кнопку 
+
+front -> back: Получает ссылку на оплату
+activate back
+back -> db: Update payment status "Pending"
+back -> front: Отдает ссылку
+deactivate back
+
+front -> client: Redirect: bank payment page
+client -> bank_payment_page 
+
+bank_payment_page -> client: Redirect: frontend
+
+bank_payment_page -> back: Webhook success payment, payment_id
+back -> bank_payment_page: payment_id check status
+alt "success"
+    back -> db: Update payment status "Error"
+else "error"
+    back -> db: Update payment status "Success"
+end
+@enduml
