@@ -15,4 +15,4 @@ https://github.com/likeinlife/graduate_work
 
 # Основные компоненты сервиса
 
-![c4](./diagrams/out/graduate_work.png)
+![c4](./diagrams/out/services.png)
