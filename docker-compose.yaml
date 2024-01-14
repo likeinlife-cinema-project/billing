@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+
+  admin_billing:
+    build:
+      context: src
+    container_name: django-admin
+    volumes:
+      - static_volume:/opt/admin/static
+      - media_volume:/opt/admin/media
+    env_file:
+      - .env
+    environment:
+      PG_ADMIN_BILLING_DB_HOST: ${PG_ADMIN_BILLING_DB_HOST:-postgres}
+      PG_ADMIN_BILLING_DB_PORT: ${PG_ADMIN_BILLING_DB_PORT:-5432}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_volume:/opt/admin/static
+      - media_volume:/opt/admin/media
+    depends_on:
+      - admin_billing
+    ports:
+      - "80:80"
+
+  postgres:
+    image: postgres:alpine3.19
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${PG_ADMIN_BILLING_USER}
+      POSTGRES_DB: ${PG_ADMIN_BILLING_PASSWORD}
+      POSTGRES_PASSWORD: ${PG_ADMIN_BILLING_DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "postgres"]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 5s
+    ports:
+      - "5432:5432"
+
+volumes:
+  db_volume:
+  static_volume:
+  media_volume:

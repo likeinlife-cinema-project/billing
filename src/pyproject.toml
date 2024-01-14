@@ -1,0 +1,11 @@
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+
+[tool.ruff]
+line-length = 120
+select = ["D", "B", "S", "A", "COM", "C4", "T10", "F"]
+ignore = ["D100", "D107", "D101", "D106", "D103", "D104", "D102", "D105", "B008", "B904", "A003"]
+exclude = ["__init__.py"]
