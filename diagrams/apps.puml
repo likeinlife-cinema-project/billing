@@ -9,23 +9,23 @@ skinparam linetype ortho
 HIDE_STEREOTYPE()
 
 Person(customer, "Customer")
-Person(admin, "Admin")
 System(bank_api, "Bank API")
 System(external, "External services")
 
 System_Boundary(billing_system, "Billing") {
-    Container(admin_panel, "Admin Panel")
-    Container(billing_service, "Billing Service")
-    ContainerDb(billing_db, "Billing DB", "Postgres", $sprite="postgresql")
+    Container(billing_app, "Billing Service")
+    Container(subscription_app, "Subscription Service")
+    Container(celery, "Celery")
+    ContainerDb(billing_db, "Billing DB", "PostgreSQL", $sprite="postgresql")
 }
 
-Rel(customer, billing_service, " ")
-Rel_R(admin, admin_panel, " ")
-Rel(admin_panel, billing_db, " ")
-
-Rel(billing_service, billing_db, " ")
-Rel(billing_service, bank_api, " ")
-Rel(billing_service, external, " ")
-
+Rel(customer, subscription_app, " ")
+Rel(subscription_app, billing_app, " ")
+Rel(subscription_app, billing_db, " ")
+Rel(billing_app, billing_db, " ")
+Rel(billing_app, celery, " ")
+Rel(billing_app, bank_api, " ")
+Rel(celery, external, " ")
+Rel(celery, billing_db, " ")
 
 @enduml

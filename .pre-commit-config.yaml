@@ -3,4 +3,10 @@ repos:
   rev: v0.1.6
   hooks:
     - id: ruff
+      args: [ --fix ]
     - id: ruff-format
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+    - id: trailing-whitespace
+    - id: mixed-line-ending

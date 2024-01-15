@@ -14,11 +14,11 @@ participant bank_payment_page as "Страница банка для оплат�
 
 client -> front: Жмет на кнопку 
 
-front -> back: Получает ссылку на оплату
-activate back
+front -> back ++: Получает ссылку на оплату
 back -> db: Update payment status "Pending"
-back -> front: Отдает ссылку
-deactivate back
+back -> bank_api ++: Create Payment 
+bank_api -> back --: payment_id
+back -> front --: Отдает ссылку
 
 front -> client: Redirect: bank payment page
 client -> bank_payment_page 

@@ -6,18 +6,22 @@ participant api as "API"
 participant payment_api as "Payment api"
 database db as "DB"
 
-customer -> api ++ : Make payment
+customer -> api: Make payment
+
 api -> payment_api ++: make_payment(amount, redirect_url)
 payment_api --> api --: Pending Payment
-api -> db: save_payment_info(pending payment)
-db --> api: ok
+api -> db ++: save_payment_info(pending payment)
+db --> api --: ok
+
 api --> customer: Redirect to Confirm
 customer -> customer: Confirm Payment
 customer -> api: Return to returl_url
-api -> payment_api: check_payment_status(payment_id)
-payment_api --> api: Payment
-api -> db: update_payment_info(payment)
-db --> api: ok
-api --> customer --: Payment Info
+
+api -> payment_api ++: check_payment_status(payment_id)
+payment_api --> api --: Payment
+api -> db ++: update_payment_info(payment)
+db --> api --: ok
+
+api --> customer: Payment Info
 
 @enduml
