@@ -11,6 +11,7 @@ include(
     'components/folders.py',
     'components/database.py',
     'components/internationalization.py',
+    'components/logging.py',
 )
 
 LOCALE_PATHS = ['billing/locale']

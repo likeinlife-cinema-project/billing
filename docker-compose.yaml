@@ -14,8 +14,12 @@ services:
     environment:
       PG_ADMIN_BILLING_DB_HOST: ${PG_ADMIN_BILLING_DB_HOST:-postgres}
       PG_ADMIN_BILLING_DB_PORT: ${PG_ADMIN_BILLING_DB_PORT:-5432}
+      LOGSTASH_HOST: ${LOGSTASH_HOST:-logstash}
+      LOGSTASH_PORT: ${LOGSTASH_PORT:-5000}
     depends_on:
       postgres:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
     expose:
       - "8000"
@@ -51,6 +55,45 @@ services:
       start_period: 5s
     ports:
       - "5432:5432"
+
+  logstash:
+    image: logstash:8.10.2
+    volumes:
+      - ./logstash/logstash.conf:/config/logstash.conf:ro
+    command: logstash -f /config/logstash.conf
+    expose:
+      - "5000/udp"
+      - "5001/udp"
+      - "5002/udp"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ES_HOST: "elasticsearch:9200"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  elasticsearch:
+    image: elasticsearch:8.10.2
+    healthcheck:
+      test: "curl -f 127.0.0.1:9200 || exit 1"
+      interval: 10s
+      timeout: 30s
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+    expose:
+      - 9200
+
+  kibana:
+    image: kibana:8.10.2
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
 
 volumes:
   db_volume:
