@@ -12,16 +12,16 @@ database db as "Заказы"
 participant bank_api as "Банк АПИ" #Yellow
 participant bank_payment_page as "Страница банка для оплаты" #SkyBlue
 
-client -> front: Жмет на кнопку 
+client -> front: Жмет на кнопку
 
 front -> back ++: Получает ссылку на оплату
 back -> db: Update payment status "Pending"
-back -> bank_api ++: Create Payment 
+back -> bank_api ++: Create Payment
 bank_api -> back --: payment_id
 back -> front --: Отдает ссылку
 
 front -> client: Redirect: bank payment page
-client -> bank_payment_page 
+client -> bank_payment_page
 
 bank_payment_page -> client: Redirect: frontend
 
