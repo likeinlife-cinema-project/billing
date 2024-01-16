@@ -8,7 +8,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_structlog",
-    "billing.apps.BillingConfig",
+    # Local apps
+    "billing",
+    "users",
+    "subscriptions",
 ]
 
 MIDDLEWARE = [
