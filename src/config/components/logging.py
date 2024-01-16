@@ -29,10 +29,6 @@ LOGGING = {
             "handlers": ["console"],
             "level": os.getenv("LOGGING_LEVEL", "DEBUG"),
         },
-        "django_structlog": {
-            "handlers": ["console"],
-            "level": os.getenv("LOGGING_LEVEL", "DEBUG"),
-        },
     },
 }
 

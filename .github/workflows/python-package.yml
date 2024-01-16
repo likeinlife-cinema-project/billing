@@ -43,12 +43,12 @@ jobs:
       - name: Lint with ruff
         uses: chartboost/ruff-action@v1
         with:
-          src: "./src"
+          src: "src auth_service"
           version: 0.1.13
 
       - name: Lint with mypy
         run: |
-          mypy --html-report reports/api/mypy/ src/* || true
+          mypy --html-report reports/api/mypy/ src auth_service || true
 
       - name: Upload reports
         uses: actions/upload-artifact@v2

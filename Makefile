@@ -18,3 +18,6 @@ prod-downv:
 
 prod-down:
 	docker compose -f docker-compose-prod.yaml down
+
+create-admin:
+	docker compose exec auth_service python -m cli admin create $(email) $(password)
