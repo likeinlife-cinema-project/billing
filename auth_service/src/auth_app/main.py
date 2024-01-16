@@ -98,9 +98,8 @@ async def logger_middleware(request: Request, call_next):
 
 
 if not s.debug:
-    configure_tracer(service_name=s.project_name, host=s.jaeger.host, port=s.jaeger.port)
-    app.middleware("http")(jaeger_middleware)
-    FastAPIInstrumentor.instrument_app(app)
+    configure_tracer(app=app, service_name=s.project_name, host=s.jaeger.host, port=s.jaeger.port,)
+    app.middleware('http')(jaeger_middleware)
 
 
 @app.exception_handler(BaseErrorWithDetail)
