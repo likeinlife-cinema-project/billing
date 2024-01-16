@@ -9,3 +9,12 @@ down:
 
 env:
 	./env-setup.sh
+
+prod-up:
+	docker compose -f docker-compose-prod.yaml up -d --build
+
+prod-downv:
+	docker compose -f docker-compose-prod.yaml down -v
+
+prod-down:
+	docker compose -f docker-compose-prod.yaml down

@@ -556,16 +556,6 @@ files = [
 dev = ["coverage[toml]", "coveralls (>=3.3,<4.0)", "ruff", "twine"]
 
 [[package]]
-name = "python-logstash"
-version = "0.4.8"
-description = "Python logging handler for Logstash."
-optional = false
-python-versions = "*"
-files = [
-    {file = "python-logstash-0.4.8.tar.gz", hash = "sha256:d04e1ce11ecc107e4a4f3b807fc57d96811e964a554081b3bbb44732f74ef5f9"},
-]
-
-[[package]]
 name = "ruff"
 version = "0.1.13"
 description = "An extremely fast Python linter and code formatter, written in Rust."
@@ -670,4 +660,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9a41b4e5a969315da1a460da76a4335b3da23c8d79c50651cbe86b0089074ea8"
+content-hash = "4ab9ab491d0b0113cb7eab08f595f8c6f100226a144ff8acfe7c6279206531fb"

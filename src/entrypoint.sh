@@ -4,6 +4,12 @@ python manage.py collectstatic --noinput
 while ! nc -z $PG_ADMIN_BILLING_DB_HOST $PG_ADMIN_BILLING_DB_PORT; do
       sleep 0.1
 done
+
 python manage.py migrate
-echo "from django.contrib.auth.models import User; User.objects.create_superuser('$DJANGO_ADMIN_BILLING_SUPERUSER_USERNAME', '$DJANGO_ADMIN_BILLING_SUPERUSER_EMAIL', '$DJANGO_ADMIN_BILLING_SUPERUSER_PASSWORD')" | python3 manage.py shell
-uwsgi --strict --ini uwsgi.ini
+python manage.py createsuperuser --noinput
+
+if [ "$DJANGO_ADMIN_BILLING_DEBUG" = "True" ]; then
+      python manage.py runserver 0.0.0.0:8000
+else
+      uwsgi --strict --ini uwsgi.ini
+fi

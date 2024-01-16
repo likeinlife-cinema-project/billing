@@ -4,8 +4,12 @@ import structlog
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "formatters": {
+        "json_console": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.JSONRenderer(),
+        },
         "plain_console": {
             "()": structlog.stdlib.ProcessorFormatter,
             "processor": structlog.dev.ConsoleRenderer(colors=True),
@@ -14,19 +18,19 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "plain_console",
-            "level": os.getenv("CONSOLE_LOGGING_LEVEL", "DEBUG"),
-        },
-        "logstash": {
-            "level": os.getenv("LOGSTASH_LOGGING_LEVEL", "DEBUG"),
-            "class": "logstash.UDPLogstashHandler",
-            "host": os.getenv("LOGSTASH_HOST"),
-            "port": int(os.getenv("LOGSTASH_PORT")),
+            "formatter": (
+                "plain_console" if os.getenv("DJANGO_ADMIN_BILLING_DEBUG", "False") == "True" else "json_console"
+            ),
+            "level": os.getenv("LOGGING_LEVEL", "DEBUG"),
         },
     },
     "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": os.getenv("LOGGING_LEVEL", "DEBUG"),
+        },
         "django_structlog": {
-            "handlers": ["console", "logstash"],
+            "handlers": ["console"],
             "level": os.getenv("LOGGING_LEVEL", "DEBUG"),
         },
     },
