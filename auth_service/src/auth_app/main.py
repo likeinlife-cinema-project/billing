@@ -7,7 +7,6 @@ from fastapi import Depends, FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
@@ -98,8 +97,8 @@ async def logger_middleware(request: Request, call_next):
 
 
 if not s.debug:
-    configure_tracer(app=app, service_name=s.project_name, host=s.jaeger.host, port=s.jaeger.port,)
-    app.middleware('http')(jaeger_middleware)
+    configure_tracer(app=app, service_name=s.project_name, host=s.jaeger.host, port=s.jaeger.port)
+    app.middleware("http")(jaeger_middleware)
 
 
 @app.exception_handler(BaseErrorWithDetail)
