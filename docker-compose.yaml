@@ -2,10 +2,13 @@ version: "3"
 
 services:
 
-  admin_billing:
+  app:
+    image: app_image
     build:
       context: src
-    container_name: django-admin
+    entrypoint:
+      - ./bash/start_app.sh
+    container_name: app
     volumes:
       - static_volume:/opt/admin/static
       - media_volume:/opt/admin/media
@@ -68,7 +71,7 @@ services:
       POSTGRES_DB: ${PG_ADMIN_BILLING_PASSWORD}
       POSTGRES_PASSWORD: ${PG_ADMIN_BILLING_DB_NAME}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "postgres"]
+      test: [ "CMD-SHELL", "pg_isready", "-d", "postgres" ]
       interval: 10s
       timeout: 60s
       retries: 5
@@ -87,10 +90,62 @@ services:
     ports:
       - "6379:6379"
 
+  rabbit:
+    build:
+      context: "./rabbitmq"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  worker:
+    image: app_image
+    container_name: worker
+    entrypoint:
+      - ./bash/start_celery.sh
+    volumes:
+      - worker_data:/data
+    restart: always
+    env_file:
+      - .env
+    environment:
+      PG_ADMIN_BILLING_DB_HOST: ${PG_ADMIN_BILLING_DB_HOST:-postgres}
+      PG_ADMIN_BILLING_DB_PORT: ${PG_ADMIN_BILLING_DB_PORT:-5432}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      app:
+        condition: service_started
+      rabbit:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  flower:
+    image: app_image
+    container_name: flower
+    entrypoint:
+      - ./bash/start_flower.sh
+    volumes:
+      - flower_data:/data
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - worker
+    ports:
+      - "5555:5555"
+
 volumes:
   db_volume:
   static_volume:
   media_volume:
+  worker_data:
+  flower_data:
 
 secrets:
   rsa_pub:
