@@ -1,0 +1,127 @@
+version: "3"
+
+services:
+  tests:
+    build:
+      context: .
+    depends_on:
+      notification-user:
+        condition: service_started
+      notification-notify:
+        condition: service_started
+      admin_notifications:
+        condition: service_started
+      api:
+        condition: service_healthy
+    command: "-s"
+    environment:
+      API_POSTGRES_HOST: ${API_POSTGRES_HOST:-postgres}
+      API_POSTGRES_PORT: ${API_POSTGRES_PORT:-5432}
+    env_file:
+      - ./test.env
+
+  api:
+    build:
+      context: ../notification_api
+    restart: on-failure
+    entrypoint: uvicorn main:app --host 0.0.0.0 --port 8001
+    env_file:
+      - ./test.env
+    depends_on:
+      - postgres
+    healthcheck:
+      test: curl -f 127.0.0.1:8001/health || exit 1
+      interval: 3s
+      timeout: 30s
+    environment:
+      API_RABBIT_HOST: ${API_RABBIT_HOST:-rabbit}
+      API_RABBIT_PORT: ${API_RABBIT_PORT:-5672}
+      API_POSTGRES_HOST: ${API_POSTGRES_HOST:-postgres}
+      API_POSTGRES_PORT: ${API_POSTGRES_PORT:-5432}
+    ports:
+      - "8001:8001"
+
+  admin_notifications:
+    build:
+      context: ../admin
+      args:
+        - COMMAND=admin
+    container_name: django-admin
+    env_file:
+      - ./test.env
+    environment:
+      PG_ADMIN_NF_DB_HOST: ${PG_ADMIN_NF_DB_HOST:-postgres}
+      PG_ADMIN_NF_DB_PORT: ${PG_ADMIN_NF_DB_PORT:-5432}
+    depends_on:
+      - postgres
+    expose:
+      - "8000"
+
+  notification-notify:
+    build:
+      context: "../notification_service"
+      args:
+        - COMMAND=notify
+    env_file:
+      - ./test.env
+    depends_on:
+      rabbit:
+        condition: service_started
+      mailpit:
+        condition: service_started
+      notification-rabbit:
+        condition: service_completed_successfully
+
+  notification-user:
+    build:
+      context: "../notification_service"
+      args:
+        - COMMAND=user
+    env_file:
+      - ./test.env
+    depends_on:
+      rabbit:
+        condition: service_started
+      postgres:
+        condition: service_started
+      notification-rabbit:
+        condition: service_completed_successfully
+
+  notification-rabbit:
+    build:
+      context: "../notification_service"
+      args:
+        - COMMAND=rabbit
+    env_file:
+      - ./test.env
+    depends_on:
+      - rabbit
+
+  rabbit:
+    build:
+      context: "../rabbitmq"
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  postgres:
+    image: postgres:alpine3.19
+    volumes:
+      - ./inserts.sql:/docker-entrypoint-initdb.d/dump.sql:ro
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  mailpit:
+    container_name: mailpit
+    restart: on-failure
+    image: axllent/mailpit:latest
+    environment:
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+    ports:
+      - "8025:8025"
+      - "1025:1025"

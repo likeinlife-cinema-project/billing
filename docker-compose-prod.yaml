@@ -26,7 +26,7 @@ services:
         gelf-address: "udp://localhost:5000"
         tag: "billing"
     expose:
-      - "8000"
+      - 8000
 
   auth_service:
     build: auth_service/src
@@ -65,7 +65,7 @@ services:
       - rsa_priv
       - service_accounts
     expose:
-      - "8000"
+      - 8000
 
   nginx:
     image: nginx:latest
@@ -83,7 +83,7 @@ services:
         gelf-address: "udp://localhost:5000"
         tag: "nginx"
     ports:
-      - "80:80"
+      - 80:80
 
   postgres:
     image: postgres:alpine3.19
@@ -102,7 +102,7 @@ services:
       retries: 5
       start_period: 5s
     ports:
-      - "5432:5432"
+      - 5432:5432
 
   logstash:
     image: logstash:8.10.2
@@ -110,7 +110,7 @@ services:
       - ./logstash/logstash.conf:/config/logstash.conf:ro
     command: logstash -f /config/logstash.conf
     ports:
-      - "5000:5000/udp"
+      - 5000:5000/udp
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
       ES_HOST: "elasticsearch:9200"
@@ -134,7 +134,7 @@ services:
   kibana:
     image: kibana:8.10.2
     ports:
-      - "5601:5601"
+      - 5601:5601
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -150,8 +150,8 @@ services:
     depends_on:
       - elasticsearch
     ports:
-      - "6831:6831/udp"
-      - "16686:16686"
+      - 6831:6831/udp
+      - 16686:16686
 
   redis:
     image: redis:latest
@@ -162,7 +162,7 @@ services:
       timeout: 30s
       retries: 10
     ports:
-      - "6379:6379"
+      - 6379:6379
 
 volumes:
   db_volume:

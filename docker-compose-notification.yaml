@@ -1,0 +1,142 @@
+version: "3"
+
+services:
+  notification_admin:
+    build:
+      context: admin
+      args:
+        - COMMAND=admin
+    env_file:
+      - .env
+    environment:
+      PG_ADMIN_NF_DB_HOST: ${PG_ADMIN_NF_DB_HOST:-notify_postgres}
+      PG_ADMIN_NF_DB_PORT: ${PG_ADMIN_NF_DB_PORT:-5432}
+    depends_on:
+      - postgres
+    expose:
+      - 8000
+
+  regular_notify_converter:
+    build:
+      context: admin
+      args:
+        - COMMAND=celery
+    restart: always
+    env_file:
+      - .env
+    environment:
+      PG_ADMIN_NF_DB_HOST: ${PG_ADMIN_NF_DB_HOST:-notify_postgres}
+      PG_ADMIN_NF_DB_PORT: ${PG_ADMIN_NF_DB_PORT:-5432}
+    depends_on:
+      - postgres
+      - admin_notifications
+      - redis_notifications
+
+  notification-api:
+    build:
+      context: "./notification_service/notification_api"
+    restart: on-failure
+    env_file:
+      - .env
+    depends_on:
+      rabbit:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    volumes:
+      - "./notification-api/src:/opt/app/"
+    environment:
+      API_RABBIT_HOST: ${API_RABBIT_HOST:-rabbit}
+      API_RABBIT_PORT: ${API_RABBIT_PORT:-5672}
+      API_POSTGRES_HOST: ${API_POSTGRES_HOST:-notify_postgres}
+      API_POSTGRES_PORT: ${API_POSTGRES_PORT:-5432}
+      API_PROJECT_ROOT_URL: /notify 
+    expose:
+      - 8001
+
+  notification-notify-sender:
+    build:
+      context: "./notification_service/notification_service"
+      args:
+        - COMMAND=notify
+    env_file:
+      - .env
+    depends_on:
+      rabbit:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+      notification-rabbit:
+        condition: service_completed_successfully
+
+  notification-user-provider:
+    build:
+      context: "./notification_service/notification_service"
+      args:
+        - COMMAND=user
+    env_file:
+      - .env
+    depends_on:
+      rabbit:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      notification-rabbit:
+        condition: service_completed_successfully
+      auth_service:
+        condition: service_healthy
+
+  notification-rabbit-setup:
+    build:
+      context: "./notification_service/notification_service"
+      args:
+        - COMMAND=rabbit
+    env_file:
+      - .env
+    depends_on:
+      rabbit:
+        condition: service_healthy
+
+  rabbit:
+    build:
+      context: "./notification_service/rabbitmq"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    expose:
+      - 5672
+      - 15672
+
+  mailpit:
+    restart: on-failure
+    image: axllent/mailpit:latest
+    environment:
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+    ports:
+      - 8025:8025
+      - 1025:1025
+
+  notify_postgres:
+    image: postgres:alpine3.19
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${PG_ADMIN_NF_USER}
+      POSTGRES_DB: ${PG_ADMIN_NF_PASSWORD}
+      POSTGRES_PASSWORD: ${PG_ADMIN_NF_DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "postgres"]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 5s
+    expose:
+      - 5432
+
+volumes:
+  db_volume:

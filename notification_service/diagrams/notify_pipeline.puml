@@ -1,0 +1,53 @@
+@startuml notify_pipeline
+skinparam WrapWidth 5
+autonumber
+
+
+participant external as "External" #LightBlue
+database notify_requests as "Notify\nRequests DB"
+participant api as "Notify API"
+
+database notify_task_queue as "Notify\nTask\nQueue"
+database dead_letter_queue as "Dead\nLetter\nQueue"
+
+box "User providing" #LightCyan
+    participant user_provider as "User\nProvider"
+    participant auth_service as "Auth Service" #LightBlue
+    database user_provided_queue as "User\nProvided\nQueue"
+end box
+
+box "Notification sending" #LightGreen
+    participant email_sender as "Email Sender"
+    actor customer as "Customer"
+end box
+
+external -> api: Notify Task
+activate api
+api -> notify_task_queue
+api -> notify_requests: Pending
+api -> external: HTTP Accepted, notify-id
+deactivate api
+
+notify_task_queue -> user_provider
+activate notify_task_queue
+user_provider -> auth_service: Get user
+auth_service -> user_provider
+alt ok
+    user_provider -> user_provided_queue
+    user_provider -> notify_requests: User Provided
+else error
+    user_provider -> notify_requests: User Provision Error
+end
+user_provided_queue -> email_sender 
+
+email_sender -> customer
+alt ok 
+    email_sender -> notify_requests: Ok
+else error
+    email_sender -> dead_letter_queue
+end
+
+dead_letter_queue -> notify_task_queue: Resend
+deactivate notify_task_queue
+
+@enduml

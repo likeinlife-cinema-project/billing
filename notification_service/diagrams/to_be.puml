@@ -1,0 +1,42 @@
+@startuml to_be
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define SPRITES https://raw.githubusercontent.com/rabelenda/cicon-plantuml-sprites/v1.0/sprites
+!include SPRITES/postgresql.puml
+!include SPRITES/rabbitmq.puml
+' skinparam linetype polyline
+skinparam linetype ortho
+
+HIDE_STEREOTYPE()
+
+Person(user, "Customer")
+Person(notify_admin, "Admin")
+System(auth_service, "Auth service")
+
+System_Boundary(notification_system, "Notification") {
+    Container(admin_panel, "Admin Panel")
+    Container(notify_api, "Notify API")
+    Container(notify_regular_service, "Regular sheduler service")
+    Container(notify_workers_pipeline, "Notify Workers Pipeline")
+    ContainerDb(db, "Notify DB", "PostgreSQL", $sprite="postgresql")
+
+    ContainerDb(queue, "Task queue", "RabbitMQ", $sprite="rabbitmq")
+}
+
+Rel(auth_service, notify_api, "")
+
+Rel(notify_admin, admin_panel, "")
+Rel(admin_panel, db, "")
+
+Rel(notify_api, db, "")
+Rel(notify_api, queue, " ")
+
+Rel_L(notify_regular_service, db, " ")
+Rel(notify_regular_service, notify_api, " ")
+
+Rel(queue, notify_workers_pipeline, " ")
+Rel(notify_workers_pipeline, db, "Change status")
+Rel(notify_workers_pipeline, auth_service, "Get user")
+
+Rel(notify_workers_pipeline, user, "Notify")
+
+@enduml

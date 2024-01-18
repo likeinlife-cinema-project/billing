@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "notification-service"
+version = "0.1.0"
+description = ""
+authors = ["likeinlife <likeinlife@outlook.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aio-pika = "^9.3.1"
+pydantic = {extras = ["email"], version = "^2.5.3"}
+pydantic-settings = "^2.1.0"
+structlog = "^23.2.0"
+backoff = "^2.2.1"
+aiosmtplib = "^3.0.1"
+dependency-injector = "^4.41.0"
+asyncpg = "^0.29.0"
+httpx = "^0.26.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.9"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 120
+select = ["D", "B", "S", "A", "COM", "C4", "T10", "F"]
+ignore = ["D100", "D107", "D101", "D106", "D103", "D104", "D102", "B008", "B904", "A003"]
+exclude = ["__init__.py"]
