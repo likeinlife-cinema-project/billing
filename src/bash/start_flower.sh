@@ -1,2 +1,2 @@
-#!/bin/bash
+#!/bin/sh
 celery -A billing flower

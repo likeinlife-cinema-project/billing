@@ -1,6 +1,5 @@
-import os
-
 import structlog
+from django.conf import settings
 
 LOGGING = {
     "version": 1,
@@ -18,16 +17,17 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": (
-                "plain_console" if os.getenv("DJANGO_ADMIN_BILLING_DEBUG", "False") == "True" else "json_console"
-            ),
-            "level": os.getenv("LOGGING_LEVEL", "DEBUG"),
+            "formatter": ("plain_console" if settings.DEBUG else "json_console"),
+            "level": settings.LOGGING_LEVEL,
         },
     },
     "loggers": {
         "": {
             "handlers": ["console"],
-            "level": os.getenv("LOGGING_LEVEL", "DEBUG"),
+            "level": settings.LOGGING_LEVEL,
+        },
+        "django": {
+            "disabled": True,
         },
     },
 }

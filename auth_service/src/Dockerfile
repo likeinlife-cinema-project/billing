@@ -15,4 +15,10 @@ COPY . .
 
 RUN chmod 777 docker-entrypoint.sh
 
-ENTRYPOINT ./docker-entrypoint.sh
+ARG PORT=8000
+ENV APP_PORT=${PORT}
+EXPOSE $APP_PORT
+
+RUN chmod +x ./docker-entrypoint.sh
+
+ENTRYPOINT ./docker-entrypoint.sh $APP_PORT

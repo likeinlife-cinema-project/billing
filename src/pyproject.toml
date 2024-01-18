@@ -33,6 +33,7 @@ pydantic = "2.5.3"
 python-dotenv = "1.0.0"
 uwsgi = "2.0.22"
 django-structlog = "^7.1.0"
+pydantic-settings = "^2.1.0"
 
 
 [tool.poetry.group.dev.dependencies]

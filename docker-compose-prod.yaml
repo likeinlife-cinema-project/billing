@@ -2,81 +2,49 @@ version: "3"
 
 services:
 
-  admin_billing:
-    build:
-      context: src
-    container_name: django-admin
-    volumes:
-      - static_volume:/opt/admin/static
-      - media_volume:/opt/admin/media
-    env_file:
-      - .env
-    environment:
-      PG_ADMIN_BILLING_DB_HOST: ${PG_ADMIN_BILLING_DB_HOST:-postgres}
-      PG_ADMIN_BILLING_DB_PORT: ${PG_ADMIN_BILLING_DB_PORT:-5432}
-      DJANGO_ADMIN_BILLING_DEBUG: "False"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
+  billing_service:
+    extends:
+      file: docker-compose-billing.yaml
+      service: billing_service
     logging:
       driver: "gelf"
       options:
         gelf-address: "udp://localhost:5000"
         tag: "billing"
-    expose:
-      - 8000
+
+  celery:
+    extends:
+      file: docker-compose-billing.yaml
+      service: celery
+
+  flower:
+    extends:
+      file: docker-compose-billing.yaml
+      service: flower
 
   auth_service:
-    build: auth_service/src
-    restart: always
-    env_file:
-      - .env
+    extends:
+      file: docker-compose-auth.yaml
+      service: auth_service
     environment:
-      - AUTH_JAEGER_HOST=jaeger
-      - AUTH_JAEGER_PORT=6831
-      - AUTH_POSTGRES_HOST=postgres
-      - AUTH_POSTGRES_PORT=5432
-      - AUTH_REDIS_HOST=redis
-      - AUTH_REDIS_PORT=6379
-      - AUTH_RSA_PRIVATE_PATH=/run/secrets/rsa_priv
-      - AUTH_RSA_PUBLIC_PATH=/run/secrets/rsa_pub
-      - AUTH_ACCOUNTS_FILE_PATH=/run/secrets/service_accounts
-      - AUTH_PROJECT_ROOT_URL=/auth
-      - AUTH_DEBUG=False
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    healthcheck:
-      test: curl --fail http://127.0.0.1:8000/health/ || exit 1
-      interval: 5s
-      timeout: 30s
-      retries: 5
+      AUTH_PROJECT_ROOT_URL: /auth
+      AUTH_DEBUG: "False"
     logging:
       driver: "gelf"
       options:
         gelf-address: "udp://localhost:5000"
         tag: "auth"
-    secrets:
-      - rsa_pub
-      - rsa_priv
-      - service_accounts
-    expose:
-      - 8000
 
   nginx:
     image: nginx:latest
-    container_name: nginx
+    depends_on:
+      - billing_service
+      - auth_service
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - static_volume:/opt/admin/static
       - media_volume:/opt/admin/media
-    depends_on:
-      - admin_billing
     logging:
       driver: "gelf"
       options:
@@ -86,88 +54,45 @@ services:
       - 80:80
 
   postgres:
-    image: postgres:alpine3.19
-    volumes:
-      - db_volume:/var/lib/postgresql/data
-    env_file:
-      - .env
+    extends:
+      file: docker-compose-common.yaml
+      service: postgres
     environment:
       POSTGRES_USER: ${PG_ADMIN_BILLING_USER}
       POSTGRES_DB: ${PG_ADMIN_BILLING_PASSWORD}
       POSTGRES_PASSWORD: ${PG_ADMIN_BILLING_DB_NAME}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "postgres"]
-      interval: 10s
-      timeout: 60s
-      retries: 5
-      start_period: 5s
-    ports:
-      - 5432:5432
-
-  logstash:
-    image: logstash:8.10.2
-    volumes:
-      - ./logstash/logstash.conf:/config/logstash.conf:ro
-    command: logstash -f /config/logstash.conf
-    ports:
-      - 5000:5000/udp
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ES_HOST: "elasticsearch:9200"
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-
-  elasticsearch:
-    image: elasticsearch:8.10.2
-    healthcheck:
-      test: "curl -f 127.0.0.1:9200 || exit 1"
-      interval: 10s
-      timeout: 30s
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
-    expose:
-      - 9200
-
-  kibana:
-    image: kibana:8.10.2
-    ports:
-      - 5601:5601
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    restart: on-failure
-    environment:
-      SPAN_STORAGE_TYPE: elasticsearch
-      ES_SERVER_URLS: "http://elasticsearch:9200"
-    depends_on:
-      - elasticsearch
-    ports:
-      - 6831:6831/udp
-      - 16686:16686
 
   redis:
-    image: redis:latest
-    restart: always
-    healthcheck:
-      test: redis-cli ping || exit 1
-      interval: 10s
-      timeout: 30s
-      retries: 10
-    ports:
-      - 6379:6379
+    extends:
+      file: docker-compose-common.yaml
+      service: redis
+
+  rabbit:
+    extends:
+      file: docker-compose-common.yaml
+      service: rabbit
+
+  logstash:
+    extends:
+      file: docker-compose-logging.yaml
+      service: logstash
+
+  elasticsearch:
+    extends:
+      file: docker-compose-logging.yaml
+      service: elasticsearch
+
+  jaeger:
+    extends:
+      file: docker-compose-logging.yaml
+      service: jaeger
 
 volumes:
   db_volume:
   static_volume:
   media_volume:
+  worker_data:
+  flower_data:
 
 secrets:
   rsa_pub:

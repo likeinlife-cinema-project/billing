@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+
+  auth_service:
+    build: auth_service/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: always
+    env_file:
+      - .env
+    environment:
+      AUTH_JAEGER_HOST: jaeger
+      AUTH_JAEGER_PORT: 6831
+      AUTH_POSTGRES_HOST: postgres
+      AUTH_POSTGRES_PORT: 5432
+      AUTH_REDIS_HOST: redis
+      AUTH_REDIS_PORT: 6379
+      AUTH_RSA_PRIVATE_PATH: /run/secrets/rsa_priv
+      AUTH_RSA_PUBLIC_PATH: /run/secrets/rsa_pub
+      AUTH_ACCOUNTS_FILE_PATH: /run/secrets/service_accounts
+    healthcheck:
+      test: curl --fail http://127.0.0.1:8000/health/ || exit 1
+      interval: 5s
+      timeout: 30s
+      retries: 5
+    secrets:
+      - rsa_pub
+      - rsa_priv
+      - service_accounts

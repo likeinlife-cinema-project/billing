@@ -1,9 +1,37 @@
-import os
-
-from dotenv import load_dotenv
 from split_settings.tools import include
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-load_dotenv()
+
+class ProjectSettings(BaseSettings):
+    name: str = Field("Django")
+    secret_key: str
+    allowed_hosts: list[str]
+    debug: str = Field("False")
+    logging_level: str = Field("INFO")
+
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="DJANGO_ADMIN_BILLING_")
+
+
+settings = ProjectSettings()
+
+
+LOCALE_PATHS = ["billing/locale"]
+
+SECRET_KEY = settings.secret_key
+
+DEBUG = settings.debug
+
+ALLOWED_HOSTS = settings.allowed_hosts
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGGING_LEVEL = settings.logging_level
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
 
 include(
     "components/application_definition.py",
@@ -14,25 +42,3 @@ include(
     "components/worker.py",
     "components/logging.py",
 )
-
-LOCALE_PATHS = ["billing/locale"]
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_ADMIN_BILLING_SECRET_KEY")
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_ADMIN_BILLING_DEBUG", "False") == "True"
-
-ALLOWED_HOSTS = os.environ.get("DJANGO_ADMIN_BILLING_ALLOWED_HOSTS").split(",")
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-INTERNAL_IPS = [
-    "127.0.0.1",
-]

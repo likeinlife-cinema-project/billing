@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+
+  billing_service: &base_billing
+    build:
+      context: src
+      args:
+        - COMMAND=billing
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    volumes:
+      - static_volume:/opt/admin/static
+      - media_volume:/opt/admin/media
+    env_file:
+      - .env
+    environment:
+      PG_ADMIN_BILLING_HOST: ${PG_ADMIN_BILLING_HOST:-postgres}
+      PG_ADMIN_BILLING_PORT: ${PG_ADMIN_BILLING_PORT:-5432}
+      DJANGO_ADMIN_BILLING_DEBUG: "False"
+
+  celery:
+    <<: *base_billing
+    build:
+      context: src
+      args:
+        - COMMAND=celery
+    depends_on:
+      postgres:
+        condition: service_healthy
+      billing_service:
+        condition: service_started
+      rabbit:
+        condition: service_started
+      redis:
+        condition: service_started
+    volumes:
+      - worker_data:/data
+
+  flower:
+    <<: *base_billing
+    build:
+      context: src
+      args:
+        - COMMAND=flower
+    depends_on:
+      - celery
+    restart: always
+    volumes:
+      - flower_data:/data
+    ports:
+      - 5555:5555
+
+volumes:
+  static_volume:
+  media_volume:
