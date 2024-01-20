@@ -30,3 +30,11 @@
       - PG_ADMIN_BILLING_DB_HOST=${PG_ADMIN_BILLING_DB_HOST:-postgres}
       - PG_ADMIN_BILLING_DB_PORT=${PG_ADMIN_BILLING_DB_PORT:-5432}
 ```
+
+# Profiles
+
+Для dev-сборки добавлены профили docker-compose auth и celery (чтобы запускать только нужные приложения)
+
+Для запуска использовать `make up-auth` или `make up-celery` соответственно
+
+Для запуска полного приложения, как обычно, `make up`

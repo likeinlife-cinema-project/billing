@@ -1,23 +1,42 @@
+dc = docker compose
+pfa = --profile auth
+pfc = --profile celery
+
+dcprod = $(dc) -f docker-compose-prod.yaml
+dcdev = $(dc)
+
 up:
-	docker compose up -d --build
+	$(dcdev) $(pfa) {$pfc} up -d --build
+
+up-billing:
+	$(dcdev) up -d --build
+
+up-celery:
+	$(dcdev) $(pfc) up -d --build
+
+up-auth:
+	$(dcdev) $(pfa) up -d --build
 
 downv:
-	docker compose down -v
+	$(dcdev) $(pfa) $(pfc) down -v
 
 down:
-	docker compose down
+	$(dcdev) $(pfa) $(pfc) down
+
+create-admin:
+	$(dcdev) exec auth_service python -m cli admin create $(email) $(password)
 
 env:
 	./env-setup.sh
 
-prod-up:
-	docker compose -f docker-compose-prod.yaml up -d --build
+p-up:
+	$(dcprod) up -d --build
 
-prod-downv:
-	docker compose -f docker-compose-prod.yaml down -v
+p-downv:
+	$(dcprod) down -v
 
-prod-down:
-	docker compose -f docker-compose-prod.yaml down
+p-down:
+	$(dcprod) down
 
-create-admin:
-	docker compose exec auth_service python -m cli admin create $(email) $(password)
+p-create-admin:
+	$(dcprod) exec auth_service python -m cli admin create $(email) $(password)

@@ -17,11 +17,15 @@ services:
     extends:
       file: docker-compose-billing.yaml
       service: celery
+    profiles:
+      - celery
 
   flower:
     extends:
       file: docker-compose-billing.yaml
       service: flower
+    profiles:
+      - celery
 
   auth_service:
     extends:
@@ -34,6 +38,8 @@ services:
       AUTH_PROJECT_ROOT_URL: 
     ports:
       - 8001:8000
+    profiles:
+      - auth
 
   postgres:
     extends:
@@ -52,11 +58,16 @@ services:
       service: redis
     ports:
       - 6379:6379
+    profiles:
+      - celery
+      - auth
 
   rabbit:
     extends:
       file: docker-compose-common.yaml
       service: rabbit
+    profiles:
+      - celery
 
 volumes:
   db_volume:
