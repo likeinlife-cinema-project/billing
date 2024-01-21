@@ -1,6 +1,6 @@
-from split_settings.tools import include
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from split_settings.tools import include
 
 
 class ProjectSettings(BaseSettings):
@@ -41,4 +41,5 @@ include(
     "components/internationalization.py",
     "components/worker.py",
     "components/logging.py",
+    "components/drf.py",
 )

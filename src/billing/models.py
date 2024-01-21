@@ -19,7 +19,7 @@ class Status(models.Choices):
 class Payments(UUIDMixin, TimeStampedMixin):
     user_id = models.UUIDField(_("user_id"), blank=False, null=False)
     user_purchase_item_id = models.UUIDField(_("user_purchase_item_id"), blank=False, null=False)
-    external_payment_id = models.CharField(_("external_payment_id"), blank=False, null=False)
+    external_payment_id = models.CharField(_("external_payment_id"), blank=False, null=False, unique=True)
     payment_method = models.CharField(_("payment_method"), blank=True)
     payment_method_id = models.CharField(_("payment_method_id"), blank=True)
     amount = models.FloatField(_("amount"), blank=False)
@@ -44,7 +44,7 @@ class Payments(UUIDMixin, TimeStampedMixin):
 class Refunds(UUIDMixin, TimeStampedMixin):
     user_id = models.UUIDField(_("user_id"), blank=False, null=False)
     payment = models.ForeignKey(Payments, on_delete=models.RESTRICT, blank=False, null=False)
-    external_refund_id = models.CharField(_("external_refund_id"))
+    external_refund_id = models.CharField(_("external_refund_id"), unique=True)
     amount = models.FloatField(_("amount"), blank=False)
     currency = models.CharField(_("currency"), choices=Currency.choices, blank=False, null=False)
     status = models.CharField(_("status"), choices=Status.choices, blank=False, null=False, default=Status.pending)

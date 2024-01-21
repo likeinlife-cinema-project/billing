@@ -164,3 +164,5 @@ cython_debug/
 .ruff_cache/
 
 .DS_Store
+
+docker-compose-admin-db.yaml

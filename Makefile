@@ -6,7 +6,7 @@ dcprod = $(dc) -f docker-compose-prod.yaml
 dcdev = $(dc)
 
 up:
-	$(dcdev) $(pfa) {$pfc} up -d --build
+	$(dcdev) $(pfa) $(pfc) up -d --build
 
 up-billing:
 	$(dcdev) up -d --build
