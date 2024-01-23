@@ -11,15 +11,14 @@ participant notification_service as "Notification service" #LightBlue
 customer -> subscription_app ++: subscription, user_id
 subscription_app -> db ++: user_id, subscription_id
 db -> subscription_app --: subscription, user
+subscription_app -> customer --: subscription list
 
-subscription_app -> billing_app ++: payment
+customer -> billing_app ++: user_id, subscription_id
 billing_app -> db ++: CREATE: payment, status=PENDING
 db -> billing_app --: payment_id
 billing_app -> bank_service ++: payment
 bank_service -> billing_app --: payment link
-billing_app -> subscription_app --: payment link
-
-subscription_app -> customer --: payment link
+billing_app -> customer --: payment link
 
 customer -> customer: make payment
 

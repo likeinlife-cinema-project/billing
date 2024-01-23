@@ -20,7 +20,7 @@ System_Boundary(billing_system, "Billing") {
 }
 
 Rel(customer, subscription_app, " ")
-Rel(subscription_app, billing_app, " ")
+Rel(customer, billing_app, " ")
 Rel(subscription_app, billing_db, " ")
 Rel(billing_app, billing_db, " ")
 Rel(billing_app, celery, " ")
