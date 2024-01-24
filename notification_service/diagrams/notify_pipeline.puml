@@ -38,10 +38,10 @@ alt ok
 else error
     user_provider -> notify_requests: User Provision Error
 end
-user_provided_queue -> email_sender 
+user_provided_queue -> email_sender
 
 email_sender -> customer
-alt ok 
+alt ok
     email_sender -> notify_requests: Ok
 else error
     email_sender -> dead_letter_queue

@@ -1,4 +1,4 @@
-FROM python:3.10.13-alpine3.17 
+FROM python:3.10.13-alpine3.17
 
 ARG CONTAINER_USER="python"
 ARG CONTAINER_UID="1000"

@@ -50,7 +50,7 @@ services:
       API_RABBIT_PORT: ${API_RABBIT_PORT:-5672}
       API_POSTGRES_HOST: ${API_POSTGRES_HOST:-notify_postgres}
       API_POSTGRES_PORT: ${API_POSTGRES_PORT:-5432}
-      API_PROJECT_ROOT_URL: /notify 
+      API_PROJECT_ROOT_URL: /notify
     expose:
       - 8001
 

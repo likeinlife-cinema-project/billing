@@ -20,7 +20,7 @@ def setup_database():
     )
     cursor = conn.cursor()
     insert_query = """
-    INSERT INTO public.template (slug, content, params) 
+    INSERT INTO public.template (slug, content, params)
     VALUES ('test_template', '<p>Hello {{ name }}!</p>', '{"name"}');
     """
     cursor.execute(insert_query)

@@ -4,23 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('notifications', '0004_alter_notification_created_at_and_more'),
+        ("notifications", "0004_alter_notification_created_at_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='notification',
-            name='finish_at',
+            model_name="notification",
+            name="finish_at",
         ),
         migrations.RemoveField(
-            model_name='notification',
-            name='periodicity',
+            model_name="notification",
+            name="periodicity",
         ),
         migrations.AddField(
-            model_name='notification',
-            name='status',
-            field=models.CharField(choices=[('WAITING', 'WAITING'), ('FAILED', 'FAILED'), ('DONE', 'DONE')], default='WAITING', max_length=64, verbose_name='Status'),
+            model_name="notification",
+            name="status",
+            field=models.CharField(
+                choices=[("WAITING", "WAITING"), ("FAILED", "FAILED"), ("DONE", "DONE")],
+                default="WAITING",
+                max_length=64,
+                verbose_name="Status",
+            ),
         ),
     ]

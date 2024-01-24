@@ -35,7 +35,7 @@ services:
       - ./auth_service/src:/home/app
     environment:
       AUTH_DEBUG: "True"
-      AUTH_PROJECT_ROOT_URL: 
+      AUTH_PROJECT_ROOT_URL:
     ports:
       - 8001:8000
     profiles:
