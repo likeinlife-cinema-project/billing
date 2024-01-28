@@ -10,7 +10,7 @@ class ProjectSettings(BaseSettings):
     debug: str = Field("False")
     logging_level: str = Field("INFO")
 
-    model_config = SettingsConfigDict(env_file=".env", env_prefix="DJANGO_ADMIN_BILLING_")
+    model_config = SettingsConfigDict(env_file="../.env", env_prefix="DJANGO_ADMIN_BILLING_")
 
 
 settings = ProjectSettings()

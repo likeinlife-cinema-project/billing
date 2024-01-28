@@ -9,7 +9,7 @@ class PostgresSettings(BaseSettings):
     host: str
     port: int = Field(5432)
 
-    model_config = SettingsConfigDict(env_file=".env", env_prefix="PG_ADMIN_BILLING_")
+    model_config = SettingsConfigDict(env_file="../.env", env_prefix="PG_ADMIN_BILLING_")
 
 
 postgres = PostgresSettings()

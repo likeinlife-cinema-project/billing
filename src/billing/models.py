@@ -11,6 +11,7 @@ class Currency(models.Choices):
 
 
 class Status(models.Choices):
+    confirmed = "confirmed"
     succeeded = "succeeded"
     canceled = "canceled"
     pending = "pending"

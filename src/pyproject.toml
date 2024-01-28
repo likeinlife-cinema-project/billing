@@ -38,6 +38,9 @@ djangorestframework = "^3.14.0"
 yookassa = "^3.0.0"
 dependency-injector = "^4.41.0"
 drf-spectacular = "^0.27.1"
+celery = "^5.3.6"
+redis = "^5.0.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 
 
 [tool.poetry.group.dev.dependencies]
