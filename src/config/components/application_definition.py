@@ -13,8 +13,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     # Local apps
     "billing",
-    "users",
     "subscriptions",
+    "payment_prolongation",
 ]
 
 MIDDLEWARE = [

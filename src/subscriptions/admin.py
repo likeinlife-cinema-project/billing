@@ -18,11 +18,11 @@ class SubscriptionAdmin(admin.ModelAdmin):
 @admin.register(UserSubscription)
 class UserSubscriptionAdmin(admin.ModelAdmin):
     list_display = (
-        "user",
+        "user_id",
         "subscription",
         "expire_at",
         "prolong",
     )
     ordering = ["created_at"]
-    search_fields = ["user"]
+    search_fields = ["user_id"]
     list_per_page = 30

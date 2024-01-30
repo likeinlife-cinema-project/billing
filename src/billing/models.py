@@ -39,7 +39,7 @@ class Payments(UUIDMixin, TimeStampedMixin):
         ]
 
     def __str__(self) -> str:
-        return self.id
+        return str(self.id)
 
 
 class Refunds(UUIDMixin, TimeStampedMixin):
@@ -61,4 +61,4 @@ class Refunds(UUIDMixin, TimeStampedMixin):
         ]
 
     def __str__(self) -> str:
-        return self.id
+        return str(self.id)

@@ -1,2 +1,2 @@
 #!/bin/sh
-celery -A billing flower
+celery -A config flower

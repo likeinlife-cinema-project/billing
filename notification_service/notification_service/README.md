@@ -13,11 +13,3 @@
 4. Для теста можно сгенерировать сообщение:
    - Локально: `python src/produce_once.py`
    - В контейнере: `docker exec -it <id_container> python src/produce_once.py`
-
-# Checklist
-- [x] SMTP
-- [x] Dead letter queue
-- [x] Распилить каждый компонент на отдельный слой, организовать связь через брокер сообщений
-- [ ] Тестирование
-- [ ] [Опционально] Websocket
-- [ ] [Опционально] Логирование ELK

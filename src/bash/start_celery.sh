@@ -1,2 +1,2 @@
 #!/bin/sh
-celery -A billing worker -B --loglevel="$CELERY_LOG_LEVEL"
+celery -A config worker -B --loglevel="$CELERY_LOG_LEVEL"

@@ -2,7 +2,7 @@ version: "3"
 
 services:
 
-  billing_service: &base_billing
+  billing-service: &base_billing
     build:
       context: src
       args:
@@ -20,6 +20,9 @@ services:
       PG_ADMIN_BILLING_HOST: ${PG_ADMIN_BILLING_HOST:-postgres}
       PG_ADMIN_BILLING_PORT: ${PG_ADMIN_BILLING_PORT:-5432}
       DJANGO_ADMIN_BILLING_DEBUG: "False"
+      AUTH_RSA_PUBLIC_PATH: /run/secrets/rsa_pub
+    secrets:
+      - rsa_pub
 
   celery:
     <<: *base_billing
@@ -30,7 +33,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      billing_service:
+      billing-service:
         condition: service_started
       rabbit:
         condition: service_started
@@ -56,3 +59,8 @@ services:
 volumes:
   static_volume:
   media_volume:
+
+
+secrets:
+  rsa_pub:
+    file: ./keys/rsa.pub

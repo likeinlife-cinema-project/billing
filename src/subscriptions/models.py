@@ -1,4 +1,5 @@
 from django.db import models
+
 from models_mixins import TimeStampedMixin, UUIDMixin
 
 
@@ -15,7 +16,7 @@ class Subscription(UUIDMixin, models.Model):
 
 
 class UserSubscription(UUIDMixin, TimeStampedMixin, models.Model):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, blank=False, null=False)
+    user_id = models.UUIDField()
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, blank=False, null=False)
     expire_at = models.DateTimeField()
     prolong = models.BooleanField()

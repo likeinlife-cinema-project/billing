@@ -4,12 +4,14 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from billing.urls import urlpatterns as billing_urls
+from payment_prolongation.urls import urlpatterns as payment_prolongation_urls
 from subscriptions.urls import urlpatterns as subscriptions_urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include(billing_urls)),
     path("", include(subscriptions_urls)),
+    path("", include(payment_prolongation_urls)),
 ]
 
 urlpatterns += [

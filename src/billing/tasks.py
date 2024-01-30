@@ -1,11 +1,11 @@
 import json
+
 import requests
 import structlog
-
 from redis import Redis
 
-from billing.celery import app
 from billing.config import settings_mock
+from config.celery import app
 
 logger = structlog.getLogger(__name__)
 

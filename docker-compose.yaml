@@ -2,10 +2,10 @@ version: "3"
 
 services:
 
-  billing_service:
+  billing-service:
     extends:
       file: docker-compose-billing.yaml
-      service: billing_service
+      service: billing-service
     volumes:
       - ./src:/opt/admin
     environment:
@@ -17,6 +17,8 @@ services:
     extends:
       file: docker-compose-billing.yaml
       service: celery
+    environment:
+      DJANGO_ADMIN_BILLING_DEBUG: "True"
     profiles:
       - celery
 
@@ -58,9 +60,6 @@ services:
       service: redis
     ports:
       - 6379:6379
-    profiles:
-      - celery
-      - auth
 
   rabbit:
     extends:
@@ -75,6 +74,7 @@ volumes:
   media_volume:
   worker_data:
   flower_data:
+
 
 secrets:
   rsa_pub:

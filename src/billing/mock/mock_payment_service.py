@@ -1,20 +1,19 @@
 import json
-
+import uuid
 from uuid import UUID, uuid4
 
 import structlog
-
 from django.http import HttpRequest, HttpResponse
 from redis import Redis
+from requests.exceptions import HTTPError
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
-from requests.exceptions import HTTPError
 
 from billing.exceptions import WrongEventException
-from billing.services.abstracts import AbstractPaymentService
 from billing.schemas.notification import Notification
-from billing.schemas.payment import PaymentOut, Confirmation
+from billing.schemas.payment import Confirmation, PaymentOut
 from billing.schemas.refund import RefundOut
+from billing.services.abstracts import AbstractPaymentService
 from billing.tasks import mock_send_notification
 
 
@@ -34,7 +33,7 @@ class MockPaymentService(AbstractPaymentService):
         payment_method_id: str,
     ) -> PaymentOut:
         try:
-            idempotency_key = f"{str(user_id)}:{str(user_purchase_item_id)}"
+            idempotency_key = str(uuid.uuid4())
             self.check_idempotency_key(idempotency_key)
         except HTTPError as err:
             self.logger.error(f"{err=}")
