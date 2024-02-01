@@ -1,4 +1,3 @@
-import datetime
 import uuid
 
 import structlog
@@ -13,7 +12,6 @@ from config.celery import app
 from subscriptions.models import UserSubscription
 
 from .containers import Container
-from .misc import get_timedelta_from_string
 
 logger = structlog.get_logger()
 
@@ -53,40 +51,28 @@ def make_new_payment(
         return
 
 
-def update_user_subscription(
+def archive_user_subscription(
     user_subscription: UserSubscription,
-    new_payment: PaymentOut,
 ) -> None:
-    # TODO: Вместо обновления старой подписки лучше добавить новую запись, а старую заархивировать
-    # BUG: С нынешней системой проблема: оплата идет по вебхуку, следовательно, из этого сервиса нельзя получить статус
-    if not new_payment.status == "succeeded":
-        logger.warning(
-            "Payment error",
-            external_payment_id=new_payment.external_payment_id,
-            user_id=new_payment.user_id,
-            subscription_id=new_payment.user_purchase_item_id,
-            payment=new_payment,
-        )
-        return
-
-    user_subscription.expire_at = datetime.datetime.now() + get_timedelta_from_string(
-        user_subscription.subscription.period
-    )
+    user_subscription.archived = True
     user_subscription.save()
-    logger.info("Update user_subscription", user_subscription_id=user_subscription.id)
+    logger.info("Archive user_subscription", user_subscription_id=user_subscription.id)
 
 
 @app.task
 def start_prolongation() -> None:
     logger.info("Start prolongation")
     expired_user_subscriptions = (
-        UserSubscription.objects.filter(expire_at__lt=timezone.now()).filter(prolong=True).select_related()
+        UserSubscription.objects.filter(expire_at__lt=timezone.now())
+        .filter(prolong=True)
+        .filter(archived=False)
+        .select_related()
     )
 
     for user_subscription in expired_user_subscriptions:
         new_payment = make_new_payment(user_subscription)
         if not new_payment:
             return
-        update_user_subscription(user_subscription, new_payment)
+        archive_user_subscription(user_subscription)
 
     logger.info("Finish prolongation")

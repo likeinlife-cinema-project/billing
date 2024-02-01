@@ -20,3 +20,4 @@ class UserSubscription(UUIDMixin, TimeStampedMixin, models.Model):
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, blank=False, null=False)
     expire_at = models.DateTimeField()
     prolong = models.BooleanField()
+    archived = models.BooleanField(default=False)
