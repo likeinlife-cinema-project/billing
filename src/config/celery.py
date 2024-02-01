@@ -14,8 +14,9 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    "do_test_task": {"task": "billing.tasks.test_billing_task", "schedule": crontab()},
     "prolongation": {"task": "payment_prolongation.tasks.start_prolongation", "schedule": crontab()},
+    "check_need_confirm": {"task": "payment_check.tasks.start_check_need_confirm", "schedule": crontab()},
+    "check_pending": {"task": "payment_check.tasks.start_check_pending", "schedule": crontab(minute="*/10")},
 }
 
 

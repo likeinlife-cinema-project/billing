@@ -10,11 +10,12 @@ class Currency(models.Choices):
     eur = "EUR"
 
 
-class Status(models.Choices):
-    confirmed = "confirmed"
+class Status(models.TextChoices):
+    need_confirm = "need_confirm"
     succeeded = "succeeded"
     canceled = "canceled"
     pending = "pending"
+    error = "error"
 
 
 class Payments(UUIDMixin, TimeStampedMixin):

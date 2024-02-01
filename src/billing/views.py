@@ -12,7 +12,7 @@ from rest_framework.request import Request
 from rest_framework import status
 
 from billing.containers import Container
-from billing.models import Payments, Refunds
+from billing.models import Payments, Refunds, Status
 from billing.serializers import PaymentSerializer, RefundSerializer
 from billing.services.abstracts import AbstractPaymentService, AbstractTokenService
 from billing.schemas.payment import PaymentIn
@@ -83,13 +83,13 @@ class NotificationView(APIView):
         notification = service.process_notification(data)
         if notification.type == "payment":
             payment = Payments.objects.filter(external_payment_id=notification.id).first()
-            payment.status = "confirmed"
+            payment.status = Status.need_confirm
             payment.refundable = notification.refundable
             payment.payment_method_id = notification.payment_method_id
             payment.payment_method = notification.payment_method_type
             payment.save()
         elif notification.type == "refund":
             refund = Refunds.objects.filter(external_refund_id=notification.id).first()
-            refund.status = "confirmed"
+            refund.status = "need_confirm"
             refund.save()
         return Response({"detail": "notification received"}, status=status.HTTP_200_OK)

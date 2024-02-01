@@ -10,6 +10,7 @@ class BillingSettings(BaseSettings):
     shop_id: int
     secret_key: str
     redirect_url: str
+    payment_expiration_secs: int = Field(600)
     mock_payment: bool = False
 
 

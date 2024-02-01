@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     "billing",
     "subscriptions",
     "payment_prolongation",
+    "payment_check",
 ]
 
 MIDDLEWARE = [

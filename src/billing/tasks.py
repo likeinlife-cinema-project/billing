@@ -11,12 +11,6 @@ logger = structlog.getLogger(__name__)
 
 
 @app.task
-def test_billing_task():
-    logger.debug("Start test task")
-    logger.debug("End test task")
-
-
-@app.task
 def mock_send_notification(key: str, type_: str):
     redis = Redis(host=settings_mock.redis_host, port=settings_mock.redis_port, db=1, decode_responses=True)
     object_ = json.loads(redis.get(key))
