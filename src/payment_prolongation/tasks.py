@@ -13,7 +13,6 @@ from subscriptions.models import UserSubscription
 
 from .containers import Container
 
-
 logger = structlog.get_logger()
 
 
@@ -73,7 +72,7 @@ def start_prolongation() -> None:
     for user_subscription in expired_user_subscriptions:
         new_payment = make_new_payment(user_subscription)
         if not new_payment:
-            return
+            continue
         archive_user_subscription(user_subscription)
 
     logger.info("Finish prolongation")

@@ -167,3 +167,4 @@ cython_debug/
 
 docker-compose-admin-db.yaml
 docker-compose-billing_dev.yaml
+static/

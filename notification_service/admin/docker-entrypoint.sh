@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$1" = "admin" ]; then
-  ./bash/entrypoint.sh
+  ./bash/start_admin.sh $2
 elif [ "$1" = "celery" ]; then
   ./bash/start_celery.sh
 elif [ "$1" = "flower" ]; then

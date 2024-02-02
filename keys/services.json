@@ -1,6 +1,10 @@
 [
     {
-        "email": "billing_service@inner.com",
+        "email": "billing.service@inner.com",
+        "password": "NDkuLDfrqQxp7A2mTFt6"
+    },
+    {
+        "email": "notify.pipeline@inner.com",
         "password": "NDkuLDfrqQxp7A2mTFt6"
     }
 ]

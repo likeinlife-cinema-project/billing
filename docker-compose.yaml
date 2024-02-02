@@ -42,6 +42,69 @@ services:
       - 8001:8000
     profiles:
       - auth
+      - notification
+
+  notification-api:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification-api
+    volumes:
+      - "./notification_service/notification_api/src:/opt/app/"
+    environment:
+      AUTH_DEBUG: "True"
+      AUTH_PROJECT_ROOT_URL:
+    ports:
+      - 8002:8001
+    profiles:
+      - notification
+
+  notification_admin:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification_admin
+    volumes:
+      - "./notification_service/admin:/opt/admin/"
+    environment:
+      DJANGO_ADMIN_NF_DEBUG: "True"
+    ports:
+      - 8003:8000
+    profiles:
+      - notification
+
+  regular_notify_converter:
+    extends:
+      file: docker-compose-notification.yaml
+      service: regular_notify_converter
+    profiles:
+      - notification
+
+  notification-notify-sender:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification-notify-sender
+    profiles:
+      - notification
+
+  notification-user-provider:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification-user-provider
+    profiles:
+      - notification
+
+  notification-rabbit-setup:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification-rabbit-setup
+    profiles:
+      - notification
+
+  mailpit:
+    extends:
+      file: docker-compose-notification.yaml
+      service: mailpit
+    profiles:
+      - notification
 
   postgres:
     extends:
@@ -60,6 +123,8 @@ services:
       service: redis
     ports:
       - 6379:6379
+    profiles:
+      - notification
 
   rabbit:
     extends:
@@ -67,6 +132,7 @@ services:
       service: rabbit
     profiles:
       - celery
+      - notification
 
 volumes:
   db_volume:

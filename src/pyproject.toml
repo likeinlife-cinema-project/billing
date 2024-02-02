@@ -7,7 +7,21 @@ django_settings_module = "config.settings"
 [tool.ruff]
 line-length = 120
 select = ["D", "B", "S", "A", "C4", "T10", "F", "Q"]
-ignore = ["D100", "D107", "D101", "D106", "D103", "D104", "D102", "D105", "D203", "D212", "B008", "B904", "A003"]
+ignore = [
+    "D100",
+    "D107",
+    "D101",
+    "D106",
+    "D103",
+    "D104",
+    "D102",
+    "D105",
+    "D203",
+    "D212",
+    "B008",
+    "B904",
+    "A003",
+]
 exclude = ["__init__.py"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -40,7 +54,7 @@ dependency-injector = "^4.41.0"
 drf-spectacular = "^0.27.1"
 celery = "^5.3.6"
 redis = "^5.0.1"
-python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+python-jose = { extras = ["cryptography"], version = "^3.3.0" }
 flower = "^2.0.1"
 
 

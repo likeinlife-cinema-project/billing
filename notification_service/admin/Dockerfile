@@ -23,12 +23,14 @@ RUN  mkdir -p /var/www/static/ \
 
 COPY . .
 
-EXPOSE 8000
-
 RUN chmod +x ./bash -R
 RUN chmod +x ./docker-entrypoint.sh
+
+ARG PORT=8000
+ENV PORT_ENV=${PORT}
+EXPOSE $PORT
 
 ARG COMMAND
 ENV COMMAND_VAR=${COMMAND}
 
-ENTRYPOINT ./docker-entrypoint.sh $COMMAND_VAR
+ENTRYPOINT ./docker-entrypoint.sh $COMMAND_VAR $PORT_ENV
