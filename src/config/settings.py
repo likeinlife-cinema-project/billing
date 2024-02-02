@@ -32,6 +32,12 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+AUTH_USER_MODEL = "user.User"
+
+AUTHENTICATION_BACKENDS = [
+    "jwt.backend.JWTAuthBackend",
+]
+
 
 include(
     "components/application_definition.py",

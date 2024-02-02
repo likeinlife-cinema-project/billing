@@ -12,6 +12,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     # Local apps
+    "user",
+    "jwt",
     "billing",
     "subscriptions",
     "payment_prolongation",
@@ -24,6 +26,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "jwt.middlewares.AuthJWTMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",

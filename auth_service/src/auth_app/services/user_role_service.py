@@ -40,7 +40,6 @@ class UserRoleService:
             limit=limit,
             offset=offset,
         )
-        print(user_list)
         return user_list
 
     async def set_user_role(

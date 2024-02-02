@@ -7,6 +7,6 @@ subscriptions_router = routers.DefaultRouter()
 subscriptions_router.register(r"subscriptions", SubscriptionView)
 
 user_subscriptions_router = routers.DefaultRouter()
-user_subscriptions_router.register(r"user_subscriptions", UserSubscriptionView)
+user_subscriptions_router.register(r"user_subscriptions", UserSubscriptionView, basename="user_subscriptions")
 
 urlpatterns = [path("", include(subscriptions_router.urls)), path("", include(user_subscriptions_router.urls))]

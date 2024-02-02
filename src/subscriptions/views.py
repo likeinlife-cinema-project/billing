@@ -10,5 +10,7 @@ class SubscriptionView(viewsets.ReadOnlyModelViewSet):
 
 
 class UserSubscriptionView(viewsets.ReadOnlyModelViewSet):
-    queryset = UserSubscription.objects.all()
     serializer_class = UserSubscriptionSerializer
+
+    def get_queryset(self):
+        return UserSubscription.objects.filter(user_id=self.request.user_id)
