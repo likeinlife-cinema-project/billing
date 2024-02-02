@@ -10,16 +10,15 @@ class Confirmation(BaseModel):
 
 
 class PaymentIn(BaseModel):
-    user_id: UUID
     recurrent: bool
     user_purchase_item_id: UUID
-    amount: float
-    currency: Literal["RUB", "USD", "EUR"]
-    payment_method_id: Optional[str] = None
 
 
 class PaymentOut(PaymentIn):
+    user_id: UUID
     external_payment_id: str
     refundable: bool
     status: Literal["canceled", "succeeded", "pending"]
     confirmation: Optional[Confirmation] = None
+    amount: float
+    currency: Literal["RUB", "USD", "EUR"]

@@ -12,6 +12,12 @@ LOGGING = {
                 structlog.processors.TimeStamper(fmt="iso"),
                 structlog.stdlib.add_logger_name,
                 structlog.stdlib.add_log_level,
+                structlog.processors.CallsiteParameterAdder(
+                    [
+                        structlog.processors.CallsiteParameter.FUNC_NAME,
+                        structlog.processors.CallsiteParameter.MODULE,
+                    ],
+                ),
                 structlog.stdlib.PositionalArgumentsFormatter(),
                 structlog.processors.StackInfoRenderer(),
                 structlog.processors.format_exc_info,
@@ -25,6 +31,12 @@ LOGGING = {
                 structlog.processors.TimeStamper(fmt="iso"),
                 structlog.stdlib.add_logger_name,
                 structlog.stdlib.add_log_level,
+                structlog.processors.CallsiteParameterAdder(
+                    [
+                        structlog.processors.CallsiteParameter.FUNC_NAME,
+                        structlog.processors.CallsiteParameter.MODULE,
+                    ],
+                ),
                 structlog.stdlib.PositionalArgumentsFormatter(),
                 structlog.processors.StackInfoRenderer(),
                 structlog.processors.format_exc_info,
@@ -57,6 +69,12 @@ structlog.configure(
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,
+        structlog.processors.CallsiteParameterAdder(
+            [
+                structlog.processors.CallsiteParameter.FUNC_NAME,
+                structlog.processors.CallsiteParameter.MODULE,
+            ],
+        ),
         structlog.stdlib.PositionalArgumentsFormatter(),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,

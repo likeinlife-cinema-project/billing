@@ -1,5 +1,6 @@
 from contextlib import suppress
 from typing import Any, Callable
+from uuid import UUID
 
 import structlog
 from django.http import HttpRequest
@@ -27,7 +28,7 @@ class AuthJWTMiddleware:
                 jwt_user_id = payload.get("sub")
         structlog.contextvars.bind_contextvars(jwt_user_id=jwt_user_id)
 
-        request.jwt_user_id = jwt_user_id
+        request.jwt_user_id = UUID(jwt_user_id) if jwt_user_id else None
         response = self.get_response(request)
 
         return response

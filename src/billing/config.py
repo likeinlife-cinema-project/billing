@@ -12,6 +12,7 @@ class BillingSettings(BaseSettings):
     redirect_url: str
     payment_expiration_secs: int = Field(600)
     mock_payment: bool = False
+    host: str
 
 
 class RedisSettings(BaseSettings):

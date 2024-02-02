@@ -12,17 +12,17 @@ def is_method(function: Callable) -> bool:
     return spec.parameters.get("self")
 
 
-def require_jwt(func: Callable[[HttpRequest], Any]):
+def require_jwt(func: Callable[[HttpRequest], Any] | Callable[[Any, HttpRequest], Any]):
     @wraps(func)
-    def _inner_for_func(request: HttpRequest, *args):
+    def _inner_for_func(request: HttpRequest, *args, **kwargs):
         if not request.jwt_user_id:
             raise InvalidTokenError
-        return func(request, *args)
+        return func(request, *args, **kwargs)
 
     @wraps(func)
-    def _inner_for_class(_instance, request: HttpRequest, *args):
+    def _inner_for_class(_instance, request: HttpRequest, *args, **kwargs):
         if not request.jwt_user_id:
             raise InvalidTokenError
-        return func(_instance, request, *args)
+        return func(_instance, request, *args, **kwargs)
 
     return _inner_for_class if is_method(func) else _inner_for_func

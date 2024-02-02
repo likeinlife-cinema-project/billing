@@ -1,10 +1,9 @@
 import structlog
 
 from jose import jwt, JWTError
-from rest_framework import status
-from rest_framework.exceptions import AuthenticationFailed
 
 from billing.config import settings_auth
+from billing.exceptions import UserTokenException
 from billing.services.abstracts import AbstractTokenService
 
 
@@ -15,15 +14,15 @@ class TokenService(AbstractTokenService):
 
     def get_user_id_from_token(self, access_token: str) -> str:
         if not access_token:
-            raise AuthenticationFailed(detail="Token invalid", code=status.HTTP_401_UNAUTHORIZED)
+            raise UserTokenException()
         try:
             payload = jwt.decode(access_token, settings_auth.public_key, algorithms=["RS256"])
             user_id = payload.get("sub")
             if not user_id:
-                raise AuthenticationFailed(detail="Token invalid", code=status.HTTP_401_UNAUTHORIZED)
+                raise UserTokenException()
             return user_id
         except JWTError:
-            raise AuthenticationFailed(detail="Token invalid", code=status.HTTP_401_UNAUTHORIZED)
+            raise UserTokenException()
 
 
 def get_token_service() -> TokenService:

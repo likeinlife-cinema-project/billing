@@ -18,7 +18,7 @@ class AbstractPaymentService(ABC):
         user_purchase_item_id: UUID,
         amount: float,
         currency: str,
-        payment_method_id: str,
+        payment_method_id: str | None = None,
     ) -> PaymentOut:
         pass
 
