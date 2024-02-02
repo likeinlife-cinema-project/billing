@@ -24,7 +24,13 @@ class AbstractPaymentService(ABC):
 
     @abstractmethod
     def refund_payment(
-        self, user_id: UUID, payment_id: UUID, external_payment_id: str, amount: float, currency: str, reason: str
+        self,
+        user_id: UUID,
+        payment_id: UUID,
+        external_payment_id: str,
+        amount: float,
+        currency: str,
+        reason: str,
     ) -> RefundOut:
         pass
 

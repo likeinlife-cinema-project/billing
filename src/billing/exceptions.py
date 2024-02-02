@@ -31,3 +31,18 @@ class IdempotencyException(BaseError):
 class UserTokenException(BaseError):
     detail = "Token invalid"
     status_code = HTTPStatus.UNAUTHORIZED
+
+
+class NotFoundPaymentException(BaseError):
+    detail = "Not found payment to refund"
+    status_code = HTTPStatus.BAD_REQUEST
+
+
+class WrongUserSubscriptionException(BaseError):
+    detail = "Wrong user subscription id"
+    status_code = HTTPStatus.BAD_REQUEST
+
+
+class ExpiredSubscriptionException(BaseError):
+    detail = "User subscription is already expired"
+    status_code = HTTPStatus.BAD_REQUEST

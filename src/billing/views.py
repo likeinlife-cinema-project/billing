@@ -1,5 +1,5 @@
 from copy import copy
-
+from datetime import datetime
 import structlog
 from dependency_injector.wiring import Provide, inject
 from django.http import HttpResponseRedirect
@@ -13,6 +13,9 @@ from rest_framework.views import APIView
 from billing.containers import Container
 from billing.exceptions import (
     PaymentFailureException,
+    NotFoundPaymentException,
+    WrongUserSubscriptionException,
+    ExpiredSubscriptionException,
 )
 from billing.models import Payments, Refunds, Status
 from billing.schemas.payment import PaymentIn
@@ -20,7 +23,8 @@ from billing.schemas.refund import RefundIn
 from billing.serializers import PaymentSerializer, RefundSerializer
 from billing.services.abstracts import AbstractPaymentService
 from jwt.decorators import require_jwt
-from subscriptions.models import Subscription
+from payment_prolongation.tasks import get_last_payment
+from subscriptions.models import Subscription, UserSubscription
 
 logger = structlog.get_logger(__name__)
 
@@ -63,22 +67,25 @@ class RefundView(APIView):
         self,
         request: Request,
         format=None,  # noqa
-        service: AbstractPaymentService = Provide[Container.payment_service],
     ):
-        # TODO: Должна быть другая логика.
-        # Должна создаваться заявка в админ панель, которую администратор отклоняет или удовлетворяет
-        # Автоматический возврат не должен происходить
         refund_in = RefundIn(**request.data)
-        get_object_or_404(Payments, id=refund_in.payment_id)
-        refund_out = service.refund_payment(
-            user_id=request.jwt_user_id,
-            payment_id=refund_in.payment_id,
-            external_payment_id=refund_in.external_payment_id,
-            amount=refund_in.amount,
-            currency=refund_in.currency,
-            reason=refund_in.reason,
-        )
-        serializer = RefundSerializer(data=refund_out.model_dump())
+        last_payment = get_last_payment(request.jwt_user_id, refund_in.user_subscription_id)
+        if not last_payment:
+            logger.warning("Found subscription, not found payment", user_subscription_id=refund_in.user_subscription_id)
+            raise NotFoundPaymentException()
+        user_subscription = UserSubscription.objects.get(refund_in.user_subscription_id)
+        if not user_subscription:
+            logger.info("Wrong user subscription", user_subscription_id=refund_in.user_subscription_id)
+            raise WrongUserSubscriptionException()
+        if user_subscription.expire_at >= datetime.now():
+            logger.info("User subscription is already expired")
+            raise ExpiredSubscriptionException()
+        refund_data = refund_in.model_dump()
+        refund_data["payment_id"] = last_payment.id
+        refund_data["user_id"] = request.jwt_user_id
+        refund_data["user_subscription_id"] = refund_in.user_subscription_id
+
+        serializer = RefundSerializer(data=refund_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

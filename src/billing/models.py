@@ -46,11 +46,12 @@ class Payments(UUIDMixin, TimeStampedMixin):
 class Refunds(UUIDMixin, TimeStampedMixin):
     user_id = models.UUIDField(_("user_id"), blank=False, null=False)
     payment = models.ForeignKey(Payments, on_delete=models.RESTRICT, blank=False, null=False)
-    external_refund_id = models.CharField(_("external_refund_id"), unique=True)
-    amount = models.FloatField(_("amount"), blank=False)
-    currency = models.CharField(_("currency"), choices=Currency.choices, blank=False, null=False)
-    status = models.CharField(_("status"), choices=Status.choices, blank=False, null=False, default=Status.pending)
+    external_refund_id = models.CharField(_("external_refund_id"), unique=True, blank=True)
+    amount = models.FloatField(_("amount"), blank=True, null=True)
+    currency = models.CharField(_("currency"), choices=Currency.choices, default="RUB")
+    status = models.CharField(_("status"), choices=Status.choices, default=Status.need_confirm)
     reason = models.TextField(_("reason"))
+    user_subscription_id = models.CharField(_("user_subscription_id"), unique=True, blank=True)
 
     class Meta:
         db_table = 'public"."refunds'

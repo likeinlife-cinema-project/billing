@@ -5,10 +5,7 @@ from pydantic import BaseModel
 
 
 class RefundIn(BaseModel):
-    payment_id: UUID
-    external_payment_id: str
-    amount: float
-    currency: Literal["RUB", "USD", "EUR"]
+    user_subscription_id: UUID
     reason: str
 
 

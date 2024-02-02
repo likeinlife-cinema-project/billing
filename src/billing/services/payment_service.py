@@ -66,7 +66,13 @@ class PaymentService(AbstractPaymentService):
         return payment_out
 
     def refund_payment(
-        self, user_id: UUID, payment_id: UUID, external_payment_id: str, amount: float, currency: str, reason: str
+        self,
+        user_id: UUID,
+        payment_id: UUID,
+        external_payment_id: str,
+        amount: float,
+        currency: str,
+        reason: str,
     ) -> RefundOut:
         builder = RefundRequestBuilder()
         builder.set_amount({"value": str(amount), "currency": currency}).set_payment_id(
