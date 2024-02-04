@@ -1,23 +1,21 @@
 import json
-
 from uuid import UUID
 
 import structlog
-
 from requests.exceptions import RequestException
 from yookassa import Configuration, Payment, Refund
-from yookassa.domain.notification import WebhookNotificationEventType, WebhookNotificationFactory
 from yookassa.domain.common import SecurityHelper
 from yookassa.domain.common.confirmation_type import ConfirmationType
+from yookassa.domain.notification import WebhookNotificationEventType, WebhookNotificationFactory
 from yookassa.domain.request.payment_request_builder import PaymentRequestBuilder
 from yookassa.domain.request.refund_request_builder import RefundRequestBuilder
 
 from billing.config import settings
-from billing.exceptions import UntrustedIpException, WrongEventException, PaymentGatewayException
-from billing.services.abstracts import AbstractPaymentService
+from billing.exceptions import PaymentGatewayException, UntrustedIpException, WrongEventException
 from billing.schemas.notification import Notification
 from billing.schemas.payment import PaymentOut
 from billing.schemas.refund import RefundOut
+from billing.services.abstracts import AbstractPaymentService
 
 
 class PaymentService(AbstractPaymentService):
@@ -49,7 +47,7 @@ class PaymentService(AbstractPaymentService):
         try:
             external_response = Payment.create(payment_request, idempotency_key)
         except RequestException:
-            raise PaymentGatewayException(detail="Error in payment request")
+            raise PaymentGatewayException
         payment_out = PaymentOut(
             external_payment_id=external_response.id,
             refundable=external_response.refundable,
@@ -82,7 +80,7 @@ class PaymentService(AbstractPaymentService):
         try:
             external_response = Refund.create(refund_request, str(payment_id))
         except RequestException:
-            raise PaymentGatewayException(detail="Error in refund request")
+            raise PaymentGatewayException
         refund_out = RefundOut(
             user_id=user_id,
             payment_id=payment_id,
@@ -114,7 +112,7 @@ class PaymentService(AbstractPaymentService):
         elif notification_object.event == WebhookNotificationEventType.REFUND_SUCCEEDED:
             notification = Notification(id=notification_object.object.id, type="refund")
             return notification
-        raise WrongEventException()
+        raise WrongEventException
 
     def get_payment_info(self, payment_id: str) -> dict:
         res = Payment.find_one(payment_id)

@@ -48,7 +48,6 @@ def make_new_payment(
         return new_payment
     except (ParseError, PermissionDenied) as exc:
         logger.error(exc, exc_info=True)
-        return
 
 
 def archive_user_subscription(

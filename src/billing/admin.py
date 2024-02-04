@@ -1,11 +1,13 @@
+from datetime import datetime
 from uuid import UUID
 
-from django.db import transaction
-from django.contrib import messages
-from datetime import datetime
 import structlog
 from dependency_injector.wiring import Provide
-from django.contrib import admin  # noqa
+from django.contrib import (
+    admin,  # noqa
+    messages,
+)
+from django.db import transaction
 
 from billing.containers import Container
 from billing.models import Payments, Refunds, Status
@@ -59,7 +61,7 @@ class RefundsAdmin(admin.ModelAdmin):
                 )
                 continue
             try:
-                amount = self.__calculate_amount(refund.payment.id, refund.user_subscription_id)
+                amount = self._calculate_amount(refund.payment.id, refund.user_subscription_id)
                 if not amount:
                     self.message_user(
                         request,
@@ -98,9 +100,9 @@ class RefundsAdmin(admin.ModelAdmin):
                     level=messages.ERROR,
                 )
 
-    def __calculate_amount(self, payment_id: UUID, user_subscription_id: UUID) -> float | None:
+    def _calculate_amount(self, payment_id: UUID, user_subscription_id: UUID) -> float | None:
         from billing.models import Payments
-        from subscriptions.models import UserSubscription, SubscriptionPeriods
+        from subscriptions.models import SubscriptionPeriods, UserSubscription
 
         payment_amount = Payments.objects.get(pk=payment_id).amount
         user_subscription = UserSubscription.objects.get(id=user_subscription_id)
