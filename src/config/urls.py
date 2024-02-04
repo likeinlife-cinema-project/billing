@@ -8,8 +8,8 @@ from subscriptions.urls import urlpatterns as subscriptions_urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include(billing_urls)),
-    path("api/", include(subscriptions_urls)),
+    path("", include(billing_urls)),
+    path("", include(subscriptions_urls)),
 ]
 
 urlpatterns += [

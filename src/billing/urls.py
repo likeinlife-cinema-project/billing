@@ -1,9 +1,7 @@
-from django.urls import path
+from django.urls import include, path
 
-from billing.views import NotificationView, PaymentView, RefundView
+from .api.urls import urlpatterns as api_urls
 
 urlpatterns = [
-    path("v1/payments/", PaymentView.as_view()),
-    path("v1/payments/refund/", RefundView.as_view()),
-    path("v1/payments/notification/", NotificationView.as_view()),
+    path("api/", include(api_urls)),
 ]
