@@ -20,9 +20,14 @@ services:
       PG_ADMIN_BILLING_HOST: ${PG_ADMIN_BILLING_HOST:-postgres}
       PG_ADMIN_BILLING_PORT: ${PG_ADMIN_BILLING_PORT:-5432}
       DJANGO_ADMIN_BILLING_DEBUG: "False"
+      DJANGO_ADMIN_BILLING_YAML_PATH: /run/configs/config
       AUTH_RSA_PUBLIC_PATH: /run/secrets/rsa_pub
     secrets:
-      - rsa_pub
+      - source: rsa_pub
+        target: auth_rsa_pub
+    configs:
+      - source: billing_config
+        target: /run/configs/config
 
   celery:
     <<: *base_billing
@@ -55,12 +60,3 @@ services:
       - flower_data:/data
     ports:
       - 5555:5555
-
-volumes:
-  static_volume:
-  media_volume:
-
-
-secrets:
-  rsa_pub:
-    file: ./keys/rsa.pub

@@ -8,8 +8,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party apps
-    "django_structlog",
     "rest_framework",
+    "django_structlog",
     "drf_spectacular",
     # Local apps
     "user",
@@ -49,8 +49,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = "config.wsgi.application"
 
 if settings.DEBUG:
     INSTALLED_APPS.append("debug_toolbar")

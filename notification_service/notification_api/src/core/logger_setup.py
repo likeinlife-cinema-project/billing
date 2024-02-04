@@ -1,59 +1,93 @@
 import logging
-import logging.handlers
-import sys
-from pathlib import Path
 
 import structlog
+from structlog.types import EventDict
 
 
-def configure_structlog(json_logging_level: str, console_logging_level: str, root_dir: Path):
-    logging.getLogger("uvicorn.access").disabled = True
-    logging.getLogger("aio_pika").setLevel(logging.ERROR)
-    logging.getLogger("aiormq").setLevel(logging.ERROR)
-    logging.basicConfig(format="%(message)s", stream=sys.stdout)
-    structlog.configure(
-        processors=[
-            structlog.stdlib.filter_by_level,
-            structlog.stdlib.add_logger_name,
-            structlog.contextvars.merge_contextvars,
-            structlog.processors.add_log_level,
-            structlog.processors.StackInfoRenderer(),
-            structlog.dev.set_exc_info,
-            structlog.processors.TimeStamper(fmt="iso", utc=True),
-            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-        ],
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
-    )
+def healthcheck_filter(_, __, event_dict: EventDict) -> EventDict:
+    if event_dict.get("path", "").endswith("/health/"):
+        raise structlog.DropEvent
+    return event_dict
 
-    formatter_console = structlog.stdlib.ProcessorFormatter(
-        processors=[
-            structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-            structlog.dev.ConsoleRenderer(),
-        ],
-    )
-    formatter_json = structlog.stdlib.ProcessorFormatter(
-        processors=[
-            structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-            structlog.processors.JSONRenderer(),
-        ],
-    )
 
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter_console)
-    console_handler.setLevel(console_logging_level)
-    console_handler.set_name("CONSOLE")
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.stdlib.filter_by_level,
+        healthcheck_filter,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.processors.CallsiteParameterAdder(
+            [
+                structlog.processors.CallsiteParameter.FUNC_NAME,
+                structlog.processors.CallsiteParameter.MODULE,
+            ],
+        ),
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+    ],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    context_class=structlog.threadlocal.wrap_dict(dict),
+    cache_logger_on_first_use=True,
+)
 
-    log_dir = root_dir / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    json_handler = logging.handlers.WatchedFileHandler(log_dir / "api.log")
-    json_handler.setFormatter(formatter_json)
-    json_handler.setLevel(json_logging_level)
-    json_handler.set_name("JSON")
+FOREIGN_PRE_CHAIN = (
+    [
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.processors.CallsiteParameterAdder(
+            [
+                structlog.processors.CallsiteParameter.FUNC_NAME,
+                structlog.processors.CallsiteParameter.MODULE,
+            ],
+        ),
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+    ],
+)
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.NOTSET)
-    root_logger.addHandler(console_handler)
-    root_logger.addHandler(json_handler)
 
-    root_logger.handlers.pop(0)
+def get_logging_settings(logging_level: str, debug_mode: bool):
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "json_console": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processor": structlog.processors.JSONRenderer(),
+                "keep_exc_info": True,
+                "foreign_pre_chain": FOREIGN_PRE_CHAIN,
+            },
+            "plain_console": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processor": structlog.dev.ConsoleRenderer(colors=True),
+                "keep_exc_info": True,
+                "foreign_pre_chain": FOREIGN_PRE_CHAIN,
+            },
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": ("plain_console" if debug_mode else "json_console"),
+                "level": logging_level,
+            },
+        },
+        "loggers": {
+            "": {
+                "handlers": ["console"],
+                "level": logging_level,
+            },
+            "uvicorn.access": {"level": logging.ERROR},
+            "uvicorn.error": {"level": logging.ERROR},
+            "aio_pika": {"level": logging.ERROR},
+            "aiormq": {"level": logging.ERROR},
+        },
+    }

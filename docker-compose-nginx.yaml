@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx:latest
+    depends_on:
+      - billing-service
+      - auth_service
+    volumes:
+      - static_volume:/opt/admin/static
+      - media_volume:/opt/admin/media
+    ports:
+      - 80:80
+    configs:
+      - source: nginx_config
+        target: /etc/nginx/nginx.conf
+      - source: nginx_service_config
+        target: /etc/nginx/conf.d/site.conf

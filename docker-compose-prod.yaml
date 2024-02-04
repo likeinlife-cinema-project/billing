@@ -5,7 +5,7 @@ services:
   billing-service:
     extends:
       file: docker-compose-billing.yaml
-      service: billing_service
+      service: billing-service
     logging:
       driver: "gelf"
       options:
@@ -36,22 +36,14 @@ services:
         tag: "auth"
 
   nginx:
-    image: nginx:latest
-    depends_on:
-      - billing_service
-      - auth_service
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - static_volume:/opt/admin/static
-      - media_volume:/opt/admin/media
+    extends:
+      file: docker-compose-nginx.yaml
+      service: nginx
     logging:
       driver: "gelf"
       options:
         gelf-address: "udp://localhost:5000"
         tag: "nginx"
-    ports:
-      - 80:80
 
   postgres:
     extends:
@@ -77,6 +69,11 @@ services:
       file: docker-compose-logging.yaml
       service: logstash
 
+  kibana:
+    extends:
+      file: docker-compose-logging.yaml
+      service: kibana
+
   elasticsearch:
     extends:
       file: docker-compose-logging.yaml
@@ -86,6 +83,52 @@ services:
     extends:
       file: docker-compose-logging.yaml
       service: jaeger
+
+  notification-api:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification-api
+    environment:
+      NOTIFY_PROJECT_ROOT_URL:
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://localhost:5000"
+        tag: "auth"
+
+  notification_admin:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification_admin
+    volumes:
+      - "./notification_service/admin:/opt/admin/"
+    environment:
+      DJANGO_ADMIN_NF_DEBUG: "True"
+
+  regular_notify_converter:
+    extends:
+      file: docker-compose-notification.yaml
+      service: regular_notify_converter
+
+  notification-notify-sender:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification-notify-sender
+
+  notification-user-provider:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification-user-provider
+
+  notification-rabbit-setup:
+    extends:
+      file: docker-compose-notification.yaml
+      service: notification-rabbit-setup
+
+  mailpit:
+    extends:
+      file: docker-compose-notification.yaml
+      service: mailpit
 
 volumes:
   db_volume:
@@ -102,3 +145,13 @@ secrets:
     file: ./keys/rsa.private
   service_accounts:
     file: ./keys/services.json
+
+configs:
+  billing_config:
+    file: ./configs/billing-prod.yaml
+  nginx_config:
+    file: ./configs/nginx/nginx.conf
+  nginx_service_config:
+    file: ./configs/nginx/conf.d/site.conf
+  logstash_config:
+    file: ./configs/logstash/logstash.conf

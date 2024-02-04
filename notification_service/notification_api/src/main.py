@@ -31,6 +31,7 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
     root_path=settings.project_root_url,
+    logger=structlog.get_logger(),
 )
 
 

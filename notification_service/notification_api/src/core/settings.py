@@ -1,10 +1,10 @@
-from pathlib import Path
+from logging import config as logging_config
 from typing import ClassVar
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from .logger_setup import configure_structlog
+from .logger_setup import get_logging_settings
 
 
 class PostgresSettings(BaseSettings):
@@ -47,17 +47,17 @@ class Settings(BaseSettings):
     postgres_dsn: str = (
         f"postgresql://{postgres.user}:{postgres.password}@{postgres.host}:{postgres.port}/{postgres.db_name}"
     )
+    logging_level: str = Field("INFO")
+    debug: bool = Field(False)
 
-    console_logging_level: str = Field("DEBUG")
-    json_logging_level: str = Field("ERROR")
-
-    model_config = SettingsConfigDict(env_prefix="api_", env_file=".env")
+    model_config = SettingsConfigDict(env_prefix="notify_", env_file=".env")
 
 
 settings = Settings()
-PROJECT_ROOT = Path(__file__).parent.parent
-configure_structlog(
-    settings.json_logging_level,
-    settings.console_logging_level,
-    PROJECT_ROOT,
+
+logging_config.dictConfig(
+    get_logging_settings(
+        settings.logging_level,
+        settings.debug,
+    ),
 )

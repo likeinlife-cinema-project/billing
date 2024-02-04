@@ -2,7 +2,7 @@ from django.conf import settings
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "EXCEPTION_HANDLER": "config.components.exception_hander.custom_exception_handler",
+    "EXCEPTION_HANDLER": "config.components.exception_handler.custom_exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {
@@ -14,4 +14,4 @@ SPECTACULAR_SETTINGS = {
 }
 
 if not settings.DEBUG:
-    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (("rest_framework.renderers.JSONRenderer",),)
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = ("rest_framework.renderers.JSONRenderer",)

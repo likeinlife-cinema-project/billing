@@ -22,4 +22,4 @@ class JWTService:
 
 
 def get_jwt_service() -> JWTService:
-    return JWTService(public_key=auth_settings.public_key)
+    return JWTService(public_key=auth_settings.rsa_pub)

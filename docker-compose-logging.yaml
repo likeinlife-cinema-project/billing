@@ -7,14 +7,15 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
-    volumes:
-      - ./logstash/logstash.conf:/config/logstash.conf:ro
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
       ES_HOST: "elasticsearch:9200"
     command: logstash -f /config/logstash.conf
     ports:
       - "5000:5000/udp"
+    configs:
+      - source: logstash_config
+        target: /config/logstash.conf
 
   elasticsearch:
     image: elasticsearch:8.10.2

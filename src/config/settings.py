@@ -1,37 +1,46 @@
+from pathlib import Path
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from split_settings.tools import include
 
+from misc.pydantic_yaml import YamlSettings
 
-class ProjectSettings(BaseSettings):
-    name: str = Field("Django")
-    secret_key: str
+
+class Settings(YamlSettings):
+    name: str
     allowed_hosts: list[str]
-    debug: str = Field("False")
     logging_level: str = Field("INFO")
+
+
+class SecretSettings(BaseSettings):
+    debug: bool = Field(False)
+    secret_key: str
+    yaml_path: Path
 
     model_config = SettingsConfigDict(env_file="../.env", env_prefix="DJANGO_ADMIN_BILLING_")
 
 
-settings = ProjectSettings()
-
+secret_settings = SecretSettings()
+yaml_settings = Settings.from_yaml(yaml_path=secret_settings.yaml_path)
 
 LOCALE_PATHS = ["billing/locale"]
 
-SECRET_KEY = settings.secret_key
+SECRET_KEY = secret_settings.secret_key
 
-DEBUG = settings.debug
+DEBUG = secret_settings.debug
 
-ALLOWED_HOSTS = settings.allowed_hosts
+ALLOWED_HOSTS = yaml_settings.allowed_hosts
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGGING_LEVEL = settings.logging_level
+LOGGING_LEVEL = yaml_settings.logging_level
 
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+WSGI_APPLICATION = "config.wsgi.application"
 AUTH_USER_MODEL = "user.User"
 
 AUTHENTICATION_BACKENDS = [

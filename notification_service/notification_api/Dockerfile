@@ -12,5 +12,10 @@ COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY ./src ./
+RUN chmod 777 docker-entrypoint.sh
 
-ENTRYPOINT ["gunicorn", "main:app", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001"]
+ARG PORT=8001
+ENV APP_PORT=${PORT}
+EXPOSE $APP_PORT
+
+ENTRYPOINT ./docker-entrypoint.sh $APP_PORT

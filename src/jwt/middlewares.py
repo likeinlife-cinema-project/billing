@@ -24,7 +24,7 @@ class AuthJWTMiddleware:
 
         if access_token:
             with suppress(JWTError):
-                payload = jwt.decode(access_token, key=auth_settings.public_key, algorithms=["RS256"])
+                payload = jwt.decode(access_token, key=auth_settings.rsa_pub, algorithms=["RS256"])
                 jwt_user_id = payload.get("sub")
         structlog.contextvars.bind_contextvars(jwt_user_id=jwt_user_id)
 

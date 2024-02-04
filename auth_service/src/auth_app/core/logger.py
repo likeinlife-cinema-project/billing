@@ -11,11 +11,18 @@ def add_correlation(_, __, event_dict: EventDict) -> EventDict:
     return event_dict
 
 
+def healthcheck_filter(_, __, event_dict: EventDict) -> EventDict:
+    if event_dict.get("path", "").endswith("/health/"):
+        raise structlog.DropEvent
+    return event_dict
+
+
 structlog.configure(
     processors=[
-        structlog.contextvars.merge_contextvars,
-        add_correlation,
         structlog.stdlib.filter_by_level,
+        structlog.contextvars.merge_contextvars,
+        healthcheck_filter,
+        add_correlation,
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,

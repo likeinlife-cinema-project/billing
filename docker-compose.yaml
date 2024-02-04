@@ -51,8 +51,9 @@ services:
     volumes:
       - "./notification_service/notification_api/src:/opt/app/"
     environment:
-      AUTH_DEBUG: "True"
-      AUTH_PROJECT_ROOT_URL:
+      NOTIFY_DEBUG: "True"
+      NOTIFY_LOGGING_LEVEL: "DEBUG"
+      NOTIFY_PROJECT_ROOT_URL:
     ports:
       - 8002:8001
     profiles:
@@ -149,3 +150,7 @@ secrets:
     file: ./keys/rsa.private
   service_accounts:
     file: ./keys/services.json
+
+configs:
+  billing_config:
+    file: ./configs/billing-dev.yaml

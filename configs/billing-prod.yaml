@@ -1,0 +1,4 @@
+name: Billing Service
+allowed_hosts:
+  - "*"
+logging_level: INFO
