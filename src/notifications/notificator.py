@@ -39,12 +39,12 @@ class Notificator(AbstractNotificator):
         if not access_token:
             self._logger.error("Ошибка получения access_token")
             return
-        self._logger.info("Got access token", access_token=access_token)
-        user_info = self._get_user_info(user_id=user_id, access_token=access_token)
-        if not user_info:
+        self._logger.info("Got access token")
+        user_info, status = self._get_user_info(user_id=user_id, access_token=access_token)
+        if status != 200:
             self._logger.error("Ошибка получения user_info")
             return
-        self._logger.info("Got user_info", user_info=user_info)
+        self._logger.info("Got user_info")
         data = {
             "type_": type_,
             "template": template,
@@ -54,7 +54,6 @@ class Notificator(AbstractNotificator):
             "to_role": [],
             "params": {**user_info, **params},
         }
-        self._logger.info("data", data=data)
         response = requests.post(url=self._notification_api_url, data=json.dumps(data), timeout=10)
         if response.status_code != 201:
             self._logger.error("Notification request fail for user", reason=response.json(), user_id=user_id)
@@ -69,7 +68,7 @@ class Notificator(AbstractNotificator):
 
     def _get_user_info(self, user_id: str, access_token: str) -> dict:
         response = requests.get(
-            url=f"{self._user_info_url}/{user_id}", cookies={"access_token": access_token}, timeout=10
+            url=f"{self._user_info_url}{user_id}", cookies={"access_token": access_token}, timeout=10
         )
         user_info = response.json()
-        return user_info
+        return user_info, response.status_code
