@@ -43,7 +43,7 @@ async def resolve_user_id(
             subject=message.subject,
             status=NotifyStatusEnum.PG,
             description="Provided user",
-            type=str(message.type_).upper(),
+            type=str(message.type_.value).upper(),
         )
         user = await user_provider.from_id(id_)
         if not user:
