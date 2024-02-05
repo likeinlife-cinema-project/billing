@@ -12,5 +12,5 @@ class BillingConfig(AppConfig):
     def ready(self) -> None:
         container = Container()
         container.init_resources()
-        container.wire(modules=["billing.views"])
+        container.wire(modules=["billing.admin", "billing.api.v1.views"])
         return super().ready()

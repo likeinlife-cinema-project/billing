@@ -9,9 +9,9 @@ class AuthSettings(BaseSettings):
 
 
 class NotificationSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file="../.env", env_prefix="DJANGO_ADMIN_NF_")
+    model_config = SettingsConfigDict(env_file="../.env", env_prefix="BILLING_NOTIFICATION_")
 
-    notification_api_url: str
+    send_notify_url: str
 
 
 class BillingSettings(BaseSettings):

@@ -51,7 +51,7 @@ class Refunds(UUIDMixin, TimeStampedMixin):
     currency = models.CharField(_("currency"), choices=Currency.choices, default="RUB")
     status = models.CharField(_("status"), choices=Status.choices, default=Status.need_confirm)
     reason = models.TextField(_("reason"))
-    user_subscription_id = models.CharField(_("user_subscription_id"), unique=True, blank=True)
+    user_subscription_id = models.UUIDField(_("user_subscription_id"), unique=True, blank=True)
 
     class Meta:
         db_table = 'public"."refunds'

@@ -1,10 +1,11 @@
 from copy import copy
-from datetime import datetime
+from http import HTTPStatus
 
 import structlog
 from dependency_injector.wiring import Provide, inject
-from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.request import Request
@@ -16,7 +17,6 @@ from billing.exceptions import (
     ExpiredSubscriptionException,
     NotFoundPaymentException,
     PaymentFailureException,
-    WrongUserSubscriptionException,
 )
 from billing.models import Payments, Refunds, Status
 from billing.schemas.payment import PaymentIn
@@ -27,11 +27,13 @@ from jwt.decorators import require_jwt
 from payment_prolongation.tasks import get_last_payment
 from subscriptions.models import Subscription, UserSubscription
 
+from . import schemas
+
 logger = structlog.get_logger(__name__)
 
 
 class PaymentView(APIView):
-    @extend_schema(request=PaymentIn, responses=None)
+    @extend_schema(request=PaymentIn, responses=schemas.PaymentOutputSchema)
     @require_jwt
     @inject
     def post(
@@ -53,8 +55,14 @@ class PaymentView(APIView):
         if not serializer.is_valid(raise_exception=True):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if payment_out.confirmation:
-            serializer.save()
-            return HttpResponseRedirect(payment_out.confirmation.confirmation_url)
+            saved = serializer.save()
+            return JsonResponse(
+                data=schemas.PaymentOutputSchema(
+                    url=payment_out.confirmation.confirmation_url,
+                    payment_id=saved.id,
+                ).model_dump(mode="json"),
+                status=HTTPStatus.CREATED,
+            )
         else:
             logger.error("No confirmation", payment_out=payment_out, payment_in=payment_in)
             raise PaymentFailureException()
@@ -70,21 +78,18 @@ class RefundView(APIView):
         format=None,  # noqa
     ):
         refund_in = RefundIn(**request.data)
-        last_payment = get_last_payment(request.jwt_user_id, refund_in.user_subscription_id)
+        user_subscription = get_object_or_404(UserSubscription, id=refund_in.user_subscription_id)
+        last_payment = get_last_payment(request.jwt_user_id, user_subscription.subscription.id)
         if not last_payment:
             logger.warning("Found subscription, not found payment", user_subscription_id=refund_in.user_subscription_id)
             raise NotFoundPaymentException()
-        user_subscription = UserSubscription.objects.get(refund_in.user_subscription_id)
-        if not user_subscription:
-            logger.info("Wrong user subscription", user_subscription_id=refund_in.user_subscription_id)
-            raise WrongUserSubscriptionException()
-        if user_subscription.expire_at >= datetime.now():
+        if user_subscription.expire_at <= timezone.now():
             logger.info("User subscription is already expired")
             raise ExpiredSubscriptionException()
         refund_data = refund_in.model_dump()
         refund_data["payment_id"] = last_payment.id
         refund_data["user_id"] = request.jwt_user_id
-        refund_data["user_subscription_id"] = refund_in.user_subscription_id
+        refund_data["user_subscription_id"] = user_subscription.id
 
         serializer = RefundSerializer(data=refund_data)
         if serializer.is_valid():

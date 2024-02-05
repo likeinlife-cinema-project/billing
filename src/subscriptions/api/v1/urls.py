@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from subscriptions.views import SubscriptionView, UserSubscriptionView
+from .views import SubscriptionView, UserSubscriptionView
 
 subscriptions_router = routers.DefaultRouter()
 subscriptions_router.register("subscriptions", SubscriptionView)

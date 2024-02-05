@@ -1,6 +1,6 @@
 from django.urls import path
 
-from billing.views import NotificationView, PaymentView, RefundView
+from .views import NotificationView, PaymentView, RefundView
 
 urlpatterns = [
     path("payments/", PaymentView.as_view()),

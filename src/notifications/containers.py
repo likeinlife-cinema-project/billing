@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from notifications.config import AuthSettings, NotificationSettings, BillingSettings
+from notifications.config import AuthSettings, BillingSettings, NotificationSettings
 from notifications.notificator import Notificator
 
 
@@ -12,7 +12,7 @@ class Container(containers.DeclarativeContainer):
         Notificator,
         settings_auth().login_url,
         settings_auth().user_info_url,
-        settings_notification().notification_api_url,
+        settings_notification().send_notify_url,
         settings_billing().email,
         settings_billing().password,
     )

@@ -14,4 +14,13 @@ class RefundSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Refunds
-        fields = ["user_id", "payment_id", "external_refund_id", "amount", "currency", "status", "reason"]
+        fields = [
+            "user_id",
+            "payment_id",
+            "external_refund_id",
+            "amount",
+            "currency",
+            "status",
+            "reason",
+            "user_subscription_id",
+        ]

@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="refunds",
             name="user_subscription_id",
-            field=models.CharField(blank=True, unique=True, verbose_name="user_subscription_id"),
+            field=models.UUIDField(blank=True, unique=True, verbose_name="user_subscription_id"),
         ),
     ]
