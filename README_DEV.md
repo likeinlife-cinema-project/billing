@@ -38,3 +38,9 @@
 Для запуска использовать `make up-auth` или `make up-celery` соответственно
 
 Для запуска полного приложения, как обычно, `make up`
+
+# URLS
+
+http://127.0.0.1:8000/admin
+http://127.0.0.1:8001/api/openapi
+http://127.0.0.1:8000/api/schema/swagger-ui/
