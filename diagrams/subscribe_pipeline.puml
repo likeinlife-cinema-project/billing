@@ -9,11 +9,13 @@ participant bank_service as "Bank service"
 participant notification_service as "Notification service" #LightBlue
 
 customer -> subscription_app ++: subscription, user_id
-subscription_app -> db ++: user_id, subscription_id
+subscription_app -> db ++: GET: user, subscription
 db -> subscription_app --: subscription, user
 subscription_app -> customer --: subscription list
 
 customer -> billing_app ++: user_id, subscription_id
+billing_app -> db ++: GET: subscriptions
+db -> billing_app --: subscriptions
 billing_app -> db ++: CREATE: payment, status=PENDING
 db -> billing_app --: payment_id
 billing_app -> bank_service ++: payment
@@ -25,29 +27,8 @@ customer -> customer: make payment
 bank_service -> billing_app: WEBHOOK: payment
 billing_app -> bank_service ++: payment_id
 bank_service -> billing_app --: status
-billing_app -> celery: payment: status=OK|ERROR, user, subscription
+billing_app -> celery: payment: status, user, subscription
 celery -> notification_service: user, payment, subscription
-activate celery
-celery -> db: UPDATE: payment, status=OK
-celery -> db: UPDATE: user_subscription
-deactivate celery
+celery -> db: UPDATE: payment, status
 
-legend right
-user:
-    • user_id
-    • bank_user_id
-subscription:
-    • subscription_id
-    • price
-user_subscription:
-    • subscription_id
-    • user_id
-    • expires
-payment:
-    • payment_id
-    • user_id
-    • bank_user_id
-    • price
-    • status
-end legend
 @enduml

@@ -1,0 +1,33 @@
+@startuml
+autonumber
+actor customer as "Customer"
+participant subscription_app as "Subscription app"
+participant billing_app as "Billing app"
+database db as "DB"
+actor admin as "Admin"
+participant admin_panel as "Admin panel"
+participant celery as "Celery"
+participant bank_service as "Bank service"
+
+customer -> subscription_app ++: subscription, user_id
+subscription_app -> db ++: GET: user, subscription
+db -> subscription_app --: subscription, user
+subscription_app -> customer --: subscription list
+
+customer -> billing_app ++: user_id, user_subscription_id
+billing_app -> db ++: GET: user, user_subscription, subscription
+db -> billing_app --: user, user_subscription, subscription
+billing_app -> db ++: CREATE: refund, status=PENDING
+db -> billing_app --: refund_id
+
+billing_app -> customer --: refund_id
+
+alt ok:
+    admin -> admin_panel: approve refund
+    admin_panel -> celery: make refund
+    celery -> bank_service: refund
+else not ok:
+    admin -> admin_panel: decline refund
+end
+
+@enduml
