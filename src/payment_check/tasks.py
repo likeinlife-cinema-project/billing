@@ -8,9 +8,11 @@ from billing.models import Payments, Status
 from billing.services import payment_service
 from config.celery import app
 from config.misc import get_timedelta_from_string
+from notifications.tasks import send_notification_async
 from subscriptions.models import UserSubscription, Subscription
 
 from .containers import Container
+
 
 logger = structlog.get_logger()
 
@@ -31,7 +33,7 @@ def get_payment_status(
 
 def add_user_subscription(
     payment: Payments,
-) -> None:
+) -> UserSubscription:
     subscription = Subscription.objects.get(id=payment.user_purchase_item_id)
     user_subscription = UserSubscription.objects.create(
         user_id=payment.user_id,
@@ -41,6 +43,7 @@ def add_user_subscription(
     )
     user_subscription.save()
     logger.info("Add user_subscription", user_subscription_id=user_subscription.id)
+    return user_subscription
 
 
 def process_payments(payments: list[Payments]) -> None:
@@ -51,7 +54,19 @@ def process_payments(payments: list[Payments]) -> None:
             logger.info("Get payment status", payment_id=payment.id, status=status)
             if status == "succeeded":
                 payment.status = Status.succeeded
-                add_user_subscription(payment)
+                user_subscription = add_user_subscription(payment)
+                send_notification_async.apply_async(
+                    args=(
+                        str(user_subscription.user_id),
+                        "email",
+                        "Subscription-activated",
+                        "Активация подписки",
+                        {
+                            "subscription_name": user_subscription.subscription.name,
+                            "expiration_date": user_subscription.expire_at.date().isoformat(),
+                        },
+                    )
+                )
             else:
                 if (timezone.now() - payment.created_at).seconds > settings.payment_expiration_secs:
                     payment.status = Status.canceled

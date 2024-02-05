@@ -5,11 +5,13 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 from billing.urls import urlpatterns as billing_urls
 from subscriptions.urls import urlpatterns as subscriptions_urls
+from notifications.urls import urlpatterns as notifications_urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include(billing_urls)),
     path("", include(subscriptions_urls)),
+    path("", include(notifications_urls))
 ]
 
 urlpatterns += [

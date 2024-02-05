@@ -1,0 +1,12 @@
+[
+    {
+        "slug": "Payment-reminder",
+        "content": "Привет, {{ email }}, завтра будут списаны деньги со счета за подписку: {{ subscription_name }}.",
+        "params": ["email", "subscription_name"]
+    },
+    {
+        "slug": "Subscription-activated",
+        "content": "Привет, {{ email }}, деньги за оплату подписку {{ subscription_name }} получены. Подписка активирована. Подписка действительна до {{ expiration_date }}",
+        "params": ["email", "subscription_name", "expiration_date"]
+    }
+]

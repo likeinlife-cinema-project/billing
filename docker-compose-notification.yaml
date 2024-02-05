@@ -1,4 +1,4 @@
-version: "3"
+version: "3.4"
 
 services:
   notification_admin:
@@ -18,6 +18,9 @@ services:
       - 8000
     secrets:
       - rsa_pub
+    configs:
+      - source: templates
+        target: /opt/admin/cli/templates.json
 
   regular_notify_converter:
     build:
@@ -115,3 +118,7 @@ services:
 secrets:
   rsa_pub:
     file: ./keys/rsa.pub
+
+configs:
+  templates:
+    file: ./notification_templates/templates.json

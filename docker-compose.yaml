@@ -154,3 +154,5 @@ secrets:
 configs:
   billing_config:
     file: ./configs/billing-dev.yaml
+  templates:
+    file: ./notification_templates/templates.json

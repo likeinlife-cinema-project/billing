@@ -30,6 +30,9 @@ down:
 create-admin:
 	$(dcdev) exec auth_service python -m cli admin create $(email) $(password)
 
+create-templates:
+	$(dcdev) exec notification_admin python -m cli template create-templates
+
 env:
 	./env-setup.sh
 

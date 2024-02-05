@@ -16,7 +16,7 @@ def mock_send_notification(key: str, type_: str):
     object_ = json.loads(redis.get(key))
     data = {"event": type_, "object": object_}
     _ = requests.post(
-        f"http://{settings.host}/payments/notification/",
+        f"http://{settings.host}/api/v1/payments/notification/",
         json=data,
         headers={"Content-type": "application/json"},
         timeout=10,
