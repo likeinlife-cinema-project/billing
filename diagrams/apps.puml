@@ -10,7 +10,8 @@ HIDE_STEREOTYPE()
 
 Person(customer, "Customer")
 System(bank_api, "Bank API")
-System(external, "External services")
+System(auth, "Auth service")
+System(notify, "Notification service")
 
 System_Boundary(billing_system, "Billing") {
     Container(billing_app, "Billing Service")
@@ -25,7 +26,8 @@ Rel(subscription_app, billing_db, " ")
 Rel(billing_app, billing_db, " ")
 Rel(billing_app, celery, " ")
 Rel(billing_app, bank_api, " ")
-Rel(celery, external, " ")
+Rel(celery, notify, " ")
+Rel(celery, auth, " ")
 Rel(celery, billing_db, " ")
 
 @enduml
