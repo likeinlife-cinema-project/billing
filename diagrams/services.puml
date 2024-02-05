@@ -11,7 +11,8 @@ HIDE_STEREOTYPE()
 Person(customer, "Customer")
 Person(admin, "Admin")
 System(bank_api, "Bank API")
-System(external, "External services")
+System(auth, "Auth service")
+System(notify, "Notification service")
 
 System_Boundary(billing_system, "Billing") {
     Container(admin_panel, "Admin Panel")
@@ -25,7 +26,7 @@ Rel(admin_panel, billing_db, " ")
 
 Rel(billing_service, billing_db, " ")
 Rel(billing_service, bank_api, " ")
-Rel(billing_service, external, " ")
-
+Rel(billing_service, auth, " ")
+Rel(billing_service, notify, " ")
 
 @enduml
