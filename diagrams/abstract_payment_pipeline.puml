@@ -24,12 +24,4 @@ front -> client: Redirect: bank payment page
 client -> bank_payment_page
 
 bank_payment_page -> client: Redirect: frontend
-
-bank_payment_page -> back: Webhook success payment, payment_id
-back -> bank_payment_page: payment_id check status
-alt "success"
-    back -> db: Update payment status "Error"
-else "error"
-    back -> db: Update payment status "Success"
-end
 @enduml
