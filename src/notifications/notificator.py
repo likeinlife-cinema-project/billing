@@ -39,7 +39,7 @@ class Notificator(AbstractNotificator):
         if not access_token:
             self._logger.error("Ошибка получения access_token")
             return
-        self._logger.info("Got access token")
+        self._logger.debug("Got access token", access_token=access_token)
         user_info, status = self._get_user_info(user_id=user_id, access_token=access_token)
         if status != 200:
             self._logger.error("Ошибка получения user_info")

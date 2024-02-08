@@ -21,7 +21,7 @@ services:
       PG_ADMIN_BILLING_PORT: ${PG_ADMIN_BILLING_PORT:-5432}
       DJANGO_ADMIN_BILLING_DEBUG: "False"
       DJANGO_ADMIN_BILLING_YAML_PATH: /run/configs/config
-      AUTH_RSA_PUBLIC_PATH: /run/secrets/rsa_pub
+      AUTH_RSA_PUBLIC_PATH: /run/secrets/auth_rsa_pub
     secrets:
       - source: rsa_pub
         target: auth_rsa_pub

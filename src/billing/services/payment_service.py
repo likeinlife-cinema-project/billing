@@ -39,11 +39,11 @@ class PaymentService(AbstractPaymentService):
                 payment_method_id
             )
         else:
-            builder.set_amount({"value": str(amount), "currency": currency}).set_confirmation(
+            builder.set_amount({"value": amount, "currency": currency}).set_confirmation(
                 {"type": ConfirmationType.REDIRECT, "return_url": self.redirect_url}
             ).set_capture(True).set_save_payment_method(recurrent)
         payment_request = builder.build()
-        idempotency_key = f"{str(user_id)}:{str(user_purchase_item_id)}"
+        idempotency_key = f"{str(user_id)[6:]}{str(user_purchase_item_id)[6:]}"
         try:
             external_response = Payment.create(payment_request, idempotency_key)
         except RequestException:
@@ -52,7 +52,7 @@ class PaymentService(AbstractPaymentService):
             external_payment_id=external_response.id,
             refundable=external_response.refundable,
             status=external_response.status,
-            confirmation=external_response.confirmation,
+            confirmation={"type": "redirect", "confirmation_url": external_response.confirmation["confirmation_url"]},
             user_id=user_id,
             user_purchase_item_id=user_purchase_item_id,
             amount=amount,
